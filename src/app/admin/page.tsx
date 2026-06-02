@@ -20,7 +20,7 @@ export default function AdminPage() {
   const [adminData, setAdminData] = useState<ContentData | null>(null);
 
   // Simple secure mock password
-  const ADMIN_PASSWORD = "masterfitness";
+  const ADMIN_PASSWORD = "Marcelo2026";
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
