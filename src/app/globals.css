@@ -1,26 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --color-brand-black: #050505;
+  --color-brand-red: #FF1E1E;
+  --color-brand-red-neon: #FF3E3E;
+  --color-brand-dark-gray: #0F0F0F;
+  --color-brand-light-gray: #1E1E1E;
+  --font-sans: 'Inter', sans-serif;
+  --font-title: 'Outfit', sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #050505;
+  --foreground: #FFFFFF;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  cursor: none; /* Hide default cursor for custom cursor */
 }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+::-webkit-scrollbar-thumb {
+  background: #FF1E1E;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #E01717;
+}
+
+/* Lenis Smooth Scroll */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overflow: clip;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* Neon Glow and Effects Utilities */
+.neon-glow-red {
+  box-shadow: 0 0 15px rgba(255, 30, 30, 0.4), 0 0 30px rgba(255, 30, 30, 0.2);
+}
+
+.text-neon-glow {
+  text-shadow: 0 0 10px rgba(255, 30, 30, 0.8), 0 0 20px rgba(255, 30, 30, 0.5);
+}
+
+.glass-card {
+  background: rgba(15, 15, 15, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-card-hover:hover {
+  border: 1px solid rgba(255, 30, 30, 0.3);
+  box-shadow: 0 0 25px rgba(255, 30, 30, 0.15);
+}
+
+/* Active Custom Cursor style for mobile */
+@media (max-width: 1024px) {
+  body {
+    cursor: default;
+  }
+}
+
