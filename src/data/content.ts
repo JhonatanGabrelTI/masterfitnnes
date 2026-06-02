@@ -68,7 +68,7 @@ export interface ContentData {
 }
 
 export const defaultContent: ContentData = {
-  version: 4,
+  version: 5,
   hero: {
     title: "FORJE A SUA MELHOR VERSÃO",
     subtitle: "Mais que uma academia, um estilo de vida. Treine na Master Fitness Ibaiti.",
@@ -77,7 +77,7 @@ export const defaultContent: ContentData = {
     whatsappNumber: "(43) 99633-5162",
   },
   stats: {
-    students: 14000,
+    students: 600,
     years: 10,
     transformations: 500,
     equipments: "Equipamentos Modernos",
