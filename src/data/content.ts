@@ -68,12 +68,12 @@ export interface ContentData {
 }
 
 export const defaultContent: ContentData = {
-  version: 6,
+  version: 7,
   hero: {
     title: "FORJE A SUA MELHOR VERSÃO",
     subtitle: "Mais que uma academia, um estilo de vida. Treine na Master Fitness Ibaiti.",
-    enrollLink: "https://wa.me/5543996335162?text=Ol%C3%A1%21+Vim+pelo+site+da+Master+Fitness+e+quero+me+matricular%21",
-    whatsappLink: "https://wa.me/5543996335162?text=Ol%C3%A1%21+Vim+pelo+site+da+Master+Fitness+e+gostaria+de+saber+mais+sobre+a+academia.",
+    enrollLink: "https://wa.me/5543996335162?text=Ol%C3%A1%21+Gostaria+de+iniciar+minha+matr%C3%ADcula+na+Master+Fitness.+Conheci+a+academia+atrav%C3%A9s+do+site+oficial%21",
+    whatsappLink: "https://wa.me/5543996335162?text=Ol%C3%A1%21+Gostaria+de+tirar+algumas+d%C3%BAvidas+sobre+o+funcionamento+e+planos+da+Master+Fitness.+Vim+pelo+site+oficial%21",
     whatsappNumber: "(43) 99633-5162",
   },
   stats: {
@@ -222,7 +222,7 @@ export const defaultContent: ContentData = {
   ],
   contact: {
     instagram: "https://instagram.com/masterfitness.ibaiti",
-    whatsapp: "https://wa.me/5543996335162?text=Ol%C3%A1%21+Vim+pelo+site+da+Master+Fitness%21",
+    whatsapp: "https://wa.me/5543996335162?text=Ol%C3%A1%21+Gostaria+de+receber+mais+informa%C3%A7%C3%B5es+sobre+a+academia+Master+Fitness.+Vim+pelo+site%21",
     address: "Av. Gov. Paulo Cruz Pimentel, 12 - Centro, Ibaiti - PR",
     phone: "(43) 99633-5162",
     mapsEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14557.575239103009!2d-50.197940250000004!3d-23.99847115!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94eaa115d91136b7%3A0xc47e33526a0b1275!2sIbaiti%2C%20PR%2C%2084900-000!5e0!3m2!1spt-BR!2sbr!4v1717351000000!5m2!1spt-BR!2sbr",

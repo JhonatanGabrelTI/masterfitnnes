@@ -11,7 +11,7 @@ interface StatsProps {
 
 function Counter({ value, suffix = "" }: { value: number; suffix?: string }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const isInView = useInView(ref, { once: true, margin: "-10px" });
   const [currentValue, setCurrentValue] = useState(0);
 
   useEffect(() => {
@@ -44,8 +44,8 @@ function Counter({ value, suffix = "" }: { value: number; suffix?: string }) {
 
   return (
     <span ref={ref} className="font-title font-black text-4xl md:text-6xl text-brand-white tracking-tighter">
-      {suffix}
       {currentValue.toLocaleString()}
+      {suffix}
     </span>
   );
 }

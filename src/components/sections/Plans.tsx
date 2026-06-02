@@ -101,7 +101,7 @@ export default function Plans({ data, whatsappEnrollUrl }: PlansProps) {
 
                 {/* CTA Button */}
                 <a
-                  href={`https://wa.me/5543996335162?text=Ol%C3%A1%21+Vim+pelo+site+da+Master+Fitness+e+gostaria+de+me+matricular+no+${encodeURIComponent(plan.name)}%21`}
+                  href={`https://wa.me/5543996335162?text=Ol%C3%A1%21+Gostaria+de+me+matricular+no+${encodeURIComponent(plan.name)}.+Vim+pelo+site+oficial+e+gostaria+de+saber+quais+s%C3%A3o+os+pr%C3%B3ximos+passos%21`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`w-full py-4 text-center font-title font-bold text-xs uppercase tracking-widest rounded-none transition-all duration-300 relative overflow-hidden flex items-center justify-center ${
