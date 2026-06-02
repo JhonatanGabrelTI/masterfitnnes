@@ -46,7 +46,7 @@ function ImageSlider({ before, after }: { before: string; after: string }) {
       onTouchMove={handleTouchMove}
       onMouseDown={() => setIsDragging(true)}
       onTouchStart={() => setIsDragging(true)}
-      className="relative w-full h-[350px] md:h-[480px] overflow-hidden border border-brand-white/10 select-none cursor-ew-resize group"
+      className="relative w-full h-[350px] md:h-[480px] overflow-hidden border border-brand-white/10 select-none cursor-ew-resize group touch-pan-y"
     >
       {/* After Image (Full background) */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
