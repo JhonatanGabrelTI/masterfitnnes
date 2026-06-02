@@ -6,9 +6,60 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { 
   Lock, Save, RefreshCw, LogOut, LayoutGrid, Award, 
-  Info, Sparkles, CreditCard, PhoneCall, Check, AlertCircle, Eye
+  Info, Sparkles, CreditCard, PhoneCall, Check, AlertCircle, Eye,
+  Plus, Trash2, Image as ImageIcon, Star
 } from "lucide-react";
 import { ContentData } from "@/data/content";
+
+// Reusable live image preview input component
+function ImageInputWithPreview({
+  value,
+  onChange,
+  label
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  label: string;
+}) {
+  return (
+    <div className="space-y-1">
+      <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+        {label}
+      </label>
+      <div className="flex gap-3 items-center">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="/images/... ou link de imagem na internet"
+          className="flex-1 bg-brand-black border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none transition-colors duration-200"
+        />
+        <div className="w-12 h-12 border border-brand-white/10 bg-brand-black flex items-center justify-center overflow-hidden shrink-0 relative group">
+          {value ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={value}
+              alt="Preview"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLElement;
+                target.style.display = "none";
+                const fallback = target.nextSibling as HTMLElement;
+                if (fallback) fallback.style.display = "flex";
+              }}
+            />
+          ) : null}
+          <div 
+            className="absolute inset-0 bg-brand-dark-gray flex items-center justify-center text-[8px] text-brand-white/30 uppercase text-center font-bold px-1"
+            style={{ display: value ? "none" : "flex" }}
+          >
+            Erro/Sem Foto
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminPage() {
   const { content, updateContent, resetContent, isLoaded } = useContent();
@@ -19,7 +70,6 @@ export default function AdminPage() {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
   const [adminData, setAdminData] = useState<ContentData | null>(null);
 
-  // Simple secure mock password
   const ADMIN_PASSWORD = "Marcelo2026";
 
   const handleLogin = (e: React.FormEvent) => {
@@ -129,7 +179,120 @@ export default function AdminPage() {
     );
   }
 
-  // Admin Dashboard Content Wrapper
+  // Helper arrays for simple list operations
+  const addModality = () => {
+    if (!adminData) return;
+    const newMod = {
+      id: "mod_" + Date.now(),
+      title: "Nova Modalidade",
+      description: "Descrição breve da modalidade.",
+      image: "/images/mod-musculacao.png"
+    };
+    setAdminData({
+      ...adminData,
+      modalities: [...adminData.modalities, newMod]
+    });
+  };
+
+  const removeModality = (idx: number) => {
+    if (!adminData) return;
+    const updated = [...adminData.modalities];
+    updated.splice(idx, 1);
+    setAdminData({ ...adminData, modalities: updated });
+  };
+
+  const addGalleryImage = () => {
+    if (!adminData) return;
+    const newImg = {
+      id: "g_" + Date.now(),
+      title: "Novo Registro",
+      image: "/images/gal-1.png",
+      category: "Infraestrutura"
+    };
+    setAdminData({
+      ...adminData,
+      gallery: [...adminData.gallery, newImg]
+    });
+  };
+
+  const removeGalleryImage = (idx: number) => {
+    if (!adminData) return;
+    const updated = [...adminData.gallery];
+    updated.splice(idx, 1);
+    setAdminData({ ...adminData, gallery: updated });
+  };
+
+  const addTransformation = () => {
+    if (!adminData) return;
+    const newTrans = {
+      id: "t_" + Date.now(),
+      title: "Nova Evolução",
+      description: "Detalhes do foco no treino e conquistas obtidas.",
+      beforeImage: "/images/gal-2.png",
+      afterImage: "/images/gal-5.png",
+      studentName: "Nome do Aluno"
+    };
+    setAdminData({
+      ...adminData,
+      transformations: [...adminData.transformations, newTrans]
+    });
+  };
+
+  const removeTransformation = (idx: number) => {
+    if (!adminData) return;
+    const updated = [...adminData.transformations];
+    updated.splice(idx, 1);
+    setAdminData({ ...adminData, transformations: updated });
+  };
+
+  const addTestimonial = () => {
+    if (!adminData) return;
+    const newTest = {
+      id: "d_" + Date.now(),
+      name: "Nome do Aluno",
+      role: "Aluno da Master",
+      text: "Excelente academia, ótima experiência!",
+      image: "/images/gal-5.png",
+      rating: 5
+    };
+    setAdminData({
+      ...adminData,
+      testimonials: [...adminData.testimonials, newTest]
+    });
+  };
+
+  const removeTestimonial = (idx: number) => {
+    if (!adminData) return;
+    const updated = [...adminData.testimonials];
+    updated.splice(idx, 1);
+    setAdminData({ ...adminData, testimonials: updated });
+  };
+
+  const addPlan = () => {
+    if (!adminData) return;
+    const newPlan = {
+      id: "p_" + Date.now(),
+      name: "NOVO PLANO",
+      price: "100,00",
+      period: "mês",
+      description: "Descrição rápida dos termos do plano.",
+      features: ["Acesso livre à musculação", "Acompanhamento profissional"],
+      recommended: false,
+      ctaText: "MATRICULAR AGORA"
+    };
+    setAdminData({
+      ...adminData,
+      plans: [...adminData.plans, newPlan]
+    });
+  };
+
+  const removePlan = (idx: number) => {
+    if (!adminData) return;
+    const updated = [...adminData.plans];
+    updated.splice(idx, 1);
+    setAdminData({ ...adminData, plans: updated });
+  };
+
   return (
     <div className="min-h-screen bg-brand-black text-brand-white flex flex-col z-10 relative">
       
@@ -173,6 +336,9 @@ export default function AdminPage() {
             { id: "stats", label: "Números", icon: <Award className="w-4 h-4" /> },
             { id: "about", label: "Sobre Nós", icon: <Info className="w-4 h-4" /> },
             { id: "modalities", label: "Modalidades", icon: <Sparkles className="w-4 h-4" /> },
+            { id: "gallery", label: "Galeria de Fotos", icon: <ImageIcon className="w-4 h-4" /> },
+            { id: "transformations", label: "Antes e Depois", icon: <Eye className="w-4 h-4" /> },
+            { id: "testimonials", label: "Depoimentos", icon: <Award className="w-4 h-4" /> },
             { id: "plans", label: "Planos", icon: <CreditCard className="w-4 h-4" /> },
             { id: "contact", label: "Contato / Redes", icon: <PhoneCall className="w-4 h-4" /> },
           ].map((tab) => (
@@ -357,6 +523,15 @@ export default function AdminPage() {
                 </h3>
                 
                 <div className="space-y-6">
+                  <ImageInputWithPreview
+                    label="Foto Ilustrativa"
+                    value={adminData.about.imageUrl}
+                    onChange={(val) => setAdminData({
+                      ...adminData,
+                      about: { ...adminData.about, imageUrl: val }
+                    })}
+                  />
+
                   <div>
                     <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
                       Título Principal
@@ -423,22 +598,37 @@ export default function AdminPage() {
             {/* TAB: MODALITIES */}
             {activeTab === "modalities" && adminData && (
               <div className="space-y-6">
-                <h3 className="font-title font-black text-xl uppercase border-b border-brand-white/5 pb-2 text-brand-red">
-                  Gerenciar Modalidades
-                </h3>
+                <div className="flex justify-between items-center border-b border-brand-white/5 pb-2">
+                  <h3 className="font-title font-black text-xl uppercase text-brand-red">
+                    Gerenciar Modalidades
+                  </h3>
+                  <button
+                    onClick={addModality}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-brand-red text-brand-white text-xs font-bold uppercase tracking-wider hover:bg-brand-red-neon transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Adicionar Modalidade</span>
+                  </button>
+                </div>
                 
                 <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-2">
                   {adminData.modalities.map((mod, idx) => (
-                    <div key={mod.id} className="p-4 border border-brand-white/5 bg-brand-black space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="font-bold text-xs uppercase text-brand-red">
-                          Modalidade #{idx + 1}
-                        </span>
-                      </div>
+                    <div key={mod.id} className="p-5 border border-brand-white/5 bg-brand-black space-y-4 relative group">
+                      <button
+                        onClick={() => removeModality(idx)}
+                        className="absolute top-4 right-4 text-brand-white/30 hover:text-brand-red transition-colors"
+                        title="Excluir modalidade"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      <span className="font-bold text-[10px] uppercase text-brand-red block">
+                        Modalidade #{idx + 1}
+                      </span>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-bold mb-1">
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
                             Título
                           </label>
                           <input
@@ -449,29 +639,23 @@ export default function AdminPage() {
                               updated[idx].title = e.target.value;
                               setAdminData({ ...adminData, modalities: updated });
                             }}
-                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2 text-xs text-brand-white focus:outline-none"
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
                           />
                         </div>
 
-                        <div>
-                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-bold mb-1">
-                            Link da imagem
-                          </label>
-                          <input
-                            type="text"
-                            value={mod.image}
-                            onChange={(e) => {
-                              const updated = [...adminData.modalities];
-                              updated[idx].image = e.target.value;
-                              setAdminData({ ...adminData, modalities: updated });
-                            }}
-                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2 text-xs text-brand-white focus:outline-none"
-                          />
-                        </div>
+                        <ImageInputWithPreview
+                          label="Imagem de Fundo"
+                          value={mod.image}
+                          onChange={(val) => {
+                            const updated = [...adminData.modalities];
+                            updated[idx].image = val;
+                            setAdminData({ ...adminData, modalities: updated });
+                          }}
+                        />
                       </div>
 
                       <div>
-                        <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-bold mb-1">
+                        <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
                           Descrição
                         </label>
                         <input
@@ -482,7 +666,318 @@ export default function AdminPage() {
                             updated[idx].description = e.target.value;
                             setAdminData({ ...adminData, modalities: updated });
                           }}
-                          className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2 text-xs text-brand-white focus:outline-none"
+                          className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: GALLERY */}
+            {activeTab === "gallery" && adminData && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center border-b border-brand-white/5 pb-2">
+                  <h3 className="font-title font-black text-xl uppercase text-brand-red">
+                    Galeria de Fotos
+                  </h3>
+                  <button
+                    onClick={addGalleryImage}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-brand-red text-brand-white text-xs font-bold uppercase tracking-wider hover:bg-brand-red-neon transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Adicionar Foto</span>
+                  </button>
+                </div>
+                
+                <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-2">
+                  {adminData.gallery.map((img, idx) => (
+                    <div key={img.id} className="p-5 border border-brand-white/5 bg-brand-black space-y-4 relative">
+                      <button
+                        onClick={() => removeGalleryImage(idx)}
+                        className="absolute top-4 right-4 text-brand-white/30 hover:text-brand-red transition-colors"
+                        title="Excluir imagem"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      <span className="font-bold text-[10px] uppercase text-brand-red block">
+                        Foto #{idx + 1}
+                      </span>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Legenda / Título
+                          </label>
+                          <input
+                            type="text"
+                            value={img.title}
+                            onChange={(e) => {
+                              const updated = [...adminData.gallery];
+                              updated[idx].title = e.target.value;
+                              setAdminData({ ...adminData, gallery: updated });
+                            }}
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Categoria
+                          </label>
+                          <select
+                            value={img.category}
+                            onChange={(e) => {
+                              const updated = [...adminData.gallery];
+                              updated[idx].category = e.target.value;
+                              setAdminData({ ...adminData, gallery: updated });
+                            }}
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none h-[38px]"
+                          >
+                            <option value="Infraestrutura">Infraestrutura</option>
+                            <option value="Treino">Treino</option>
+                            <option value="Comunidade">Comunidade</option>
+                          </select>
+                        </div>
+
+                        <ImageInputWithPreview
+                          label="Imagem"
+                          value={img.image}
+                          onChange={(val) => {
+                            const updated = [...adminData.gallery];
+                            updated[idx].image = val;
+                            setAdminData({ ...adminData, gallery: updated });
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: TRANSFORMATIONS */}
+            {activeTab === "transformations" && adminData && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center border-b border-brand-white/5 pb-2">
+                  <h3 className="font-title font-black text-xl uppercase text-brand-red">
+                    Antes e Depois (Resultados)
+                  </h3>
+                  <button
+                    onClick={addTransformation}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-brand-red text-brand-white text-xs font-bold uppercase tracking-wider hover:bg-brand-red-neon transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Adicionar Resultados</span>
+                  </button>
+                </div>
+                
+                <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-2">
+                  {adminData.transformations.map((trans, idx) => (
+                    <div key={trans.id} className="p-5 border border-brand-white/5 bg-brand-black space-y-4 relative">
+                      <button
+                        onClick={() => removeTransformation(idx)}
+                        className="absolute top-4 right-4 text-brand-white/30 hover:text-brand-red transition-colors"
+                        title="Excluir resultados"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      <span className="font-bold text-[10px] uppercase text-brand-red block">
+                        Resultados #{idx + 1}
+                      </span>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Nome do Aluno
+                          </label>
+                          <input
+                            type="text"
+                            value={trans.studentName}
+                            onChange={(e) => {
+                              const updated = [...adminData.transformations];
+                              updated[idx].studentName = e.target.value;
+                              setAdminData({ ...adminData, transformations: updated });
+                            }}
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Legenda / Período (ex: 6 meses)
+                          </label>
+                          <input
+                            type="text"
+                            value={trans.title}
+                            onChange={(e) => {
+                              const updated = [...adminData.transformations];
+                              updated[idx].title = e.target.value;
+                              setAdminData({ ...adminData, transformations: updated });
+                            }}
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                          />
+                        </div>
+
+                        <ImageInputWithPreview
+                          label="Foto Antes"
+                          value={trans.beforeImage}
+                          onChange={(val) => {
+                            const updated = [...adminData.transformations];
+                            updated[idx].beforeImage = val;
+                            setAdminData({ ...adminData, transformations: updated });
+                          }}
+                        />
+
+                        <ImageInputWithPreview
+                          label="Foto Depois"
+                          value={trans.afterImage}
+                          onChange={(val) => {
+                            const updated = [...adminData.transformations];
+                            updated[idx].afterImage = val;
+                            setAdminData({ ...adminData, transformations: updated });
+                          }}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                          Breve Descrição do Foco / Progresso
+                        </label>
+                        <input
+                          type="text"
+                          value={trans.description}
+                          onChange={(e) => {
+                            const updated = [...adminData.transformations];
+                            updated[idx].description = e.target.value;
+                            setAdminData({ ...adminData, transformations: updated });
+                          }}
+                          className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: TESTIMONIALS */}
+            {activeTab === "testimonials" && adminData && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center border-b border-brand-white/5 pb-2">
+                  <h3 className="font-title font-black text-xl uppercase text-brand-red">
+                    Depoimentos de Alunos
+                  </h3>
+                  <button
+                    onClick={addTestimonial}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-brand-red text-brand-white text-xs font-bold uppercase tracking-wider hover:bg-brand-red-neon transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Adicionar Depoimento</span>
+                  </button>
+                </div>
+                
+                <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-2">
+                  {adminData.testimonials.map((test, idx) => (
+                    <div key={test.id} className="p-5 border border-brand-white/5 bg-brand-black space-y-4 relative">
+                      <button
+                        onClick={() => removeTestimonial(idx)}
+                        className="absolute top-4 right-4 text-brand-white/30 hover:text-brand-red transition-colors"
+                        title="Excluir depoimento"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      <span className="font-bold text-[10px] uppercase text-brand-red block">
+                        Depoimento #{idx + 1}
+                      </span>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Nome
+                          </label>
+                          <input
+                            type="text"
+                            value={test.name}
+                            onChange={(e) => {
+                              const updated = [...adminData.testimonials];
+                              updated[idx].name = e.target.value;
+                              setAdminData({ ...adminData, testimonials: updated });
+                            }}
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Legenda (ex: Aluno há 1 ano)
+                          </label>
+                          <input
+                            type="text"
+                            value={test.role}
+                            onChange={(e) => {
+                              const updated = [...adminData.testimonials];
+                              updated[idx].role = e.target.value;
+                              setAdminData({ ...adminData, testimonials: updated });
+                            }}
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Avaliação (Estrelas de 1 a 5)
+                          </label>
+                          <div className="flex gap-2 items-center h-[38px]">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button
+                                key={star}
+                                type="button"
+                                onClick={() => {
+                                  const updated = [...adminData.testimonials];
+                                  updated[idx].rating = star;
+                                  setAdminData({ ...adminData, testimonials: updated });
+                                }}
+                                className="focus:outline-none"
+                              >
+                                <Star 
+                                  className={`w-5 h-5 ${
+                                    star <= test.rating ? "text-yellow-500 fill-yellow-500" : "text-brand-white/20"
+                                  }`} 
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <ImageInputWithPreview
+                          label="Foto de Perfil"
+                          value={test.image}
+                          onChange={(val) => {
+                            const updated = [...adminData.testimonials];
+                            updated[idx].image = val;
+                            setAdminData({ ...adminData, testimonials: updated });
+                          }}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                          Depoimento
+                        </label>
+                        <textarea
+                          value={test.text}
+                          onChange={(e) => {
+                            const updated = [...adminData.testimonials];
+                            updated[idx].text = e.target.value;
+                            setAdminData({ ...adminData, testimonials: updated });
+                          }}
+                          rows={2}
+                          className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2 text-xs text-brand-white focus:outline-none resize-none"
                         />
                       </div>
                     </div>
@@ -494,14 +989,31 @@ export default function AdminPage() {
             {/* TAB: PLANS */}
             {activeTab === "plans" && adminData && (
               <div className="space-y-6">
-                <h3 className="font-title font-black text-xl uppercase border-b border-brand-white/5 pb-2 text-brand-red">
-                  Gerenciar Planos e Preços
-                </h3>
+                <div className="flex justify-between items-center border-b border-brand-white/5 pb-2">
+                  <h3 className="font-title font-black text-xl uppercase text-brand-red">
+                    Gerenciar Planos e Preços
+                  </h3>
+                  <button
+                    onClick={addPlan}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-brand-red text-brand-white text-xs font-bold uppercase tracking-wider hover:bg-brand-red-neon transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Adicionar Plano</span>
+                  </button>
+                </div>
                 
                 <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-2">
                   {adminData.plans.map((plan, idx) => (
-                    <div key={plan.id} className="p-4 border border-brand-white/5 bg-brand-black space-y-4">
-                      <div className="flex justify-between items-center">
+                    <div key={plan.id} className="p-5 border border-brand-white/5 bg-brand-black space-y-4 relative">
+                      <button
+                        onClick={() => removePlan(idx)}
+                        className="absolute top-4 right-4 text-brand-white/30 hover:text-brand-red transition-colors"
+                        title="Excluir plano"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      <div className="flex justify-between items-center pr-8">
                         <span className="font-bold text-xs uppercase text-brand-red">
                           {plan.name}
                         </span>
@@ -526,7 +1038,7 @@ export default function AdminPage() {
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-bold mb-1">
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
                             Nome do Plano
                           </label>
                           <input
@@ -537,12 +1049,12 @@ export default function AdminPage() {
                               updated[idx].name = e.target.value;
                               setAdminData({ ...adminData, plans: updated });
                             }}
-                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2 text-xs text-brand-white focus:outline-none"
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-bold mb-1">
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
                             Preço (R$)
                           </label>
                           <input
@@ -553,12 +1065,12 @@ export default function AdminPage() {
                               updated[idx].price = e.target.value;
                               setAdminData({ ...adminData, plans: updated });
                             }}
-                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2 text-xs text-brand-white focus:outline-none"
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-bold mb-1">
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
                             Período
                           </label>
                           <input
@@ -569,13 +1081,13 @@ export default function AdminPage() {
                               updated[idx].period = e.target.value;
                               setAdminData({ ...adminData, plans: updated });
                             }}
-                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2 text-xs text-brand-white focus:outline-none"
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-bold mb-1">
+                        <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
                           Descrição Rápida
                         </label>
                         <input
@@ -586,7 +1098,24 @@ export default function AdminPage() {
                             updated[idx].description = e.target.value;
                             setAdminData({ ...adminData, plans: updated });
                           }}
-                          className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2 text-xs text-brand-white focus:outline-none"
+                          className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                          Vantagens / Recursos (separados por vírgula)
+                        </label>
+                        <input
+                          type="text"
+                          value={plan.features.join(", ")}
+                          onChange={(e) => {
+                            const updated = [...adminData.plans];
+                            updated[idx].features = e.target.value.split(",").map(f => f.trim()).filter(Boolean);
+                            setAdminData({ ...adminData, plans: updated });
+                          }}
+                          placeholder="Acesso total, Avaliação física,..."
+                          className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
                         />
                       </div>
                     </div>
