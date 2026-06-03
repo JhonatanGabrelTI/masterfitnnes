@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { ContentData } from "@/data/content";
 
-// Reusable live image preview input component
+// Reusable live image preview input component with client-side file uploader & compression
 function ImageInputWithPreview({
   value,
   onChange,
@@ -21,20 +21,82 @@ function ImageInputWithPreview({
   onChange: (val: string) => void;
   label: string;
 }) {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        // Compress image to maximum 800x800 resolution to preserve localStorage space
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convert to highly compressed JPEG data URL (quality: 0.70)
+        const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.70);
+        onChange(compressedDataUrl);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="space-y-1">
       <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
         {label}
       </label>
       <div className="flex gap-3 items-center">
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="/images/... ou link de imagem na internet"
-          className="flex-1 bg-brand-black border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none transition-colors duration-200"
-        />
-        <div className="w-12 h-12 border border-brand-white/10 bg-brand-black flex items-center justify-center overflow-hidden shrink-0 relative group">
+        <div className="flex-grow flex flex-col gap-2">
+          {/* Custom Styled Upload Button */}
+          <div className="relative">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+            />
+            <div className="w-full bg-brand-black border border-brand-white/10 hover:border-brand-red px-3 py-2 text-xs text-brand-white/70 hover:text-brand-white flex items-center gap-2 justify-center transition-all duration-200 cursor-pointer">
+              <ImageIcon className="w-3.5 h-3.5 text-brand-red shrink-0" />
+              <span>Enviar Imagem (Upload)</span>
+            </div>
+          </div>
+          
+          {/* Optional Text input for URLs */}
+          <input
+            type="text"
+            value={value.startsWith("data:") ? "[Imagem do Dispositivo]" : value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="Ou cole o link da imagem..."
+            className="w-full bg-brand-black/40 border border-brand-white/5 px-2.5 py-1.5 text-[10px] text-brand-white/40 focus:outline-none focus:border-brand-red focus:text-brand-white transition-colors duration-200"
+          />
+        </div>
+        
+        {/* Preview Container */}
+        <div className="w-16 h-16 border border-brand-white/10 bg-brand-black flex items-center justify-center overflow-hidden shrink-0 relative group">
           {value ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -50,10 +112,10 @@ function ImageInputWithPreview({
             />
           ) : null}
           <div 
-            className="absolute inset-0 bg-brand-dark-gray flex items-center justify-center text-[8px] text-brand-white/30 uppercase text-center font-bold px-1"
+            className="absolute inset-0 bg-brand-dark-gray flex items-center justify-center text-[8px] text-brand-white/20 uppercase text-center font-bold px-1"
             style={{ display: value ? "none" : "flex" }}
           >
-            Erro/Sem Foto
+            Sem Foto
           </div>
         </div>
       </div>
