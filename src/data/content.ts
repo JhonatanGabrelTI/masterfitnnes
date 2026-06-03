@@ -68,7 +68,7 @@ export interface ContentData {
 }
 
 export const defaultContent: ContentData = {
-  version: 7,
+  version: 8,
   hero: {
     title: "FORJE A SUA MELHOR VERSÃO",
     subtitle: "Mais que uma academia, um estilo de vida. Treine na Master Fitness Ibaiti.",
@@ -127,7 +127,7 @@ export const defaultContent: ContentData = {
     { id: "g3", title: "Equipamentos Importados", image: "/images/gal-3.png", category: "Infraestrutura" },
     { id: "g4", title: "Área de Cardio Integrada", image: "/images/gal-4.png", category: "Infraestrutura" },
     { id: "g5", title: "Foco e Determinação", image: "/images/gal-5.png", category: "Treino" },
-    { id: "g6", title: "Comunidade Master Fitness", image: "/images/gal-6.png", category: "Comunidade" },
+    { id: "g6", title: "Comunidade Master Fitness", image: "/images/gal-comunidade.jpg", category: "Comunidade" },
   ],
   transformations: [
     {
