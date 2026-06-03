@@ -137,7 +137,7 @@ export default function Hero({ data }: HeroProps) {
               href={data.enrollLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-8 py-4 bg-brand-red text-brand-white font-title font-bold text-sm uppercase tracking-widest transition-all duration-300 relative overflow-hidden group hover:scale-105 active:scale-95 neon-glow-red flex items-center justify-center"
+              className="px-8 py-4 bg-brand-red text-brand-white font-title font-bold text-sm uppercase tracking-widest transition-all duration-300 relative overflow-hidden group hover:scale-105 active:scale-95 neon-glow-red flex items-center justify-center animate-shine-button"
             >
               {/* Pulsing overlay */}
               <div className="absolute inset-0 bg-brand-red-neon/30 blur-lg rounded-full scale-0 group-hover:scale-150 transition-transform duration-700" />

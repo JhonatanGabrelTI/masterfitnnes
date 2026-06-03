@@ -115,3 +115,35 @@ html.lenis, html.lenis body {
   animation: textFloatWhite 4.5s infinite ease-in-out;
 }
 
+/* Premium Button Shine effect */
+@keyframes buttonShineSweep {
+  0% {
+    left: -100%;
+  }
+  20%, 100% {
+    left: 130%;
+  }
+}
+
+.animate-shine-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shine-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  animation: buttonShineSweep 4.5s infinite ease-in-out;
+}
+

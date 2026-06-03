@@ -106,7 +106,7 @@ export default function Plans({ data, whatsappEnrollUrl }: PlansProps) {
                   rel="noopener noreferrer"
                   className={`w-full py-4 text-center font-title font-bold text-xs uppercase tracking-widest rounded-none transition-all duration-300 relative overflow-hidden flex items-center justify-center ${
                     isRec
-                      ? "bg-brand-red hover:bg-brand-red-neon text-brand-white shadow-[0_4px_15px_rgba(255,30,30,0.3)] hover:scale-[1.02] active:scale-[0.98]"
+                      ? "bg-brand-red hover:bg-brand-red-neon text-brand-white shadow-[0_4px_15px_rgba(255,30,30,0.3)] hover:scale-[1.02] active:scale-[0.98] animate-shine-button"
                       : "bg-brand-white/5 hover:bg-brand-white/10 border border-brand-white/10 hover:border-brand-white/35 text-brand-white active:scale-[0.98]"
                   }`}
                 >

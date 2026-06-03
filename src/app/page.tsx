@@ -2,6 +2,7 @@
 
 import { useContent } from "@/hooks/useContent";
 import Navbar from "@/components/ui/Navbar";
+import Marquee from "@/components/ui/Marquee";
 import SmoothScroll from "@/components/effects/SmoothScroll";
 import CustomCursor from "@/components/effects/CustomCursor";
 import EnergyBackground from "@/components/effects/EnergyBackground";
@@ -84,6 +85,7 @@ export default function Home() {
               <main className="relative z-10 w-full min-h-screen">
                 <Hero data={content.hero} />
                 <Stats data={content.stats} />
+                <Marquee />
                 <About data={content.about} />
                 <Modalities data={content.modalities} />
                 <Gallery data={content.gallery} />
