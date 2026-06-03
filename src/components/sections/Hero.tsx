@@ -105,10 +105,12 @@ export default function Hero({ data }: HeroProps) {
                 <motion.span
                   custom={i}
                   variants={wordVariants}
-                  className="inline-block"
+                  className={`inline-block ${
+                    word === "MELHOR" || word === "VERSÃO" ? "animate-glow-pulse" : "animate-float-white"
+                  }`}
                   style={{
                     color: word === "MELHOR" || word === "VERSÃO" ? "#FF1E1E" : "#FFFFFF",
-                    textShadow: word === "MELHOR" || word === "VERSÃO" ? "0 0 20px rgba(255, 30, 30, 0.4)" : "none",
+                    animationDelay: `${i * 0.15}s`,
                   }}
                 >
                   {word}
