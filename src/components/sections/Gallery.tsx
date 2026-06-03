@@ -88,7 +88,7 @@ export default function Gallery({ data }: GalleryProps) {
           {filteredItems.map((item, index) => {
             // Pick image URL
             const urlIdx = data.findIndex((d) => d.id === item.id);
-            const imgUrl = unsplashGalleryUrls[urlIdx !== -1 ? urlIdx : index % 6];
+            const imgUrl = item.image || unsplashGalleryUrls[urlIdx !== -1 ? urlIdx : index % 6];
 
             return (
               <motion.div
@@ -165,6 +165,7 @@ export default function Gallery({ data }: GalleryProps) {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={
+                      filteredItems[activeImageIdx].image ||
                       unsplashGalleryUrls[
                         data.findIndex((d) => d.id === filteredItems[activeImageIdx].id)
                       ]

@@ -24,7 +24,7 @@ function ModalityCard({ title, description, image, index }: { title: string; des
     "Bike Indoor (Spinning)": "https://images.unsplash.com/photo-1538797539774-1213dba5451c?q=80&w=600",
   };
 
-  const displayImage = unsplashImages[title] || image;
+  const displayImage = image || unsplashImages[title];
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const card = cardRef.current;
