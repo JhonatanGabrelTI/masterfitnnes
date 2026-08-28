@@ -129,6 +129,7 @@ export default function AdminPage() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authError, setAuthError] = useState(false);
   const [activeTab, setActiveTab] = useState("hero");
+  const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
   const [adminData, setAdminData] = useState<ContentData | null>(null);
 
@@ -389,10 +390,10 @@ export default function AdminPage() {
       </header>
 
       {/* Main Grid Workspace */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-0 max-w-7xl w-full mx-auto p-4 md:p-8">
+      <div className="flex-1 flex flex-col lg:grid lg:grid-cols-12 gap-0 max-w-7xl w-full mx-auto p-4 md:p-8 pb-32">
         
         {/* Sidebar Nav Tabs */}
-        <aside className="lg:col-span-3 bg-brand-dark-gray border border-brand-white/5 p-4 flex flex-col gap-2 h-fit">
+        <aside className="lg:col-span-3 bg-brand-dark-gray border border-brand-white/5 p-4 flex flex-row lg:flex-col gap-2 h-fit overflow-x-auto whitespace-nowrap lg:whitespace-normal scrollbar-hide">
           {[
             { id: "hero", label: "Hero (Início)", icon: <LayoutGrid className="w-4 h-4" /> },
             { id: "stats", label: "Números", icon: <Award className="w-4 h-4" /> },
@@ -406,8 +407,8 @@ export default function AdminPage() {
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-xs uppercase tracking-wider font-extrabold transition-all duration-300 text-left border ${
+              onClick={() => { setActiveTab(tab.id); setExpandedItem(null); }}
+              className={`flex-shrink-0 lg:w-full flex items-center gap-3 px-4 py-3 text-xs uppercase tracking-wider font-extrabold transition-all duration-300 text-left border ${
                 activeTab === tab.id
                   ? "bg-brand-red border-brand-red text-brand-white shadow-[0_2px_10px_rgba(255,30,30,0.25)]"
                   : "border-transparent text-brand-white/60 hover:text-brand-white hover:bg-brand-white/5"
@@ -418,12 +419,12 @@ export default function AdminPage() {
             </button>
           ))}
 
-          <hr className="border-brand-white/5 my-4" />
+          <hr className="hidden lg:block border-brand-white/5 my-4" />
 
           {/* Dangerous Zone */}
           <button
             onClick={handleReset}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-brand-red/20 text-brand-red text-xs uppercase tracking-widest font-black hover:bg-brand-red/5 transition-all duration-300"
+            className="flex-shrink-0 lg:w-full flex items-center justify-center gap-2 px-4 py-3 border border-brand-red/20 text-brand-red text-xs uppercase tracking-widest font-black hover:bg-brand-red/5 transition-all duration-300"
           >
             Redefinir Dados
           </button>
@@ -675,18 +676,28 @@ export default function AdminPage() {
                 
                 <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-2">
                   {adminData.modalities.map((mod, idx) => (
-                    <div key={mod.id} className="p-5 border border-brand-white/5 bg-brand-black space-y-4 relative group">
-                      <button
-                        onClick={() => removeModality(idx)}
-                        className="absolute top-4 right-4 text-brand-white/30 hover:text-brand-red transition-colors"
-                        title="Excluir modalidade"
+                    <div key={mod.id} className="border border-brand-white/5 bg-brand-black relative">
+                      <div 
+                        className="p-4 flex justify-between items-center cursor-pointer hover:bg-brand-white/5 transition-colors"
+                        onClick={() => setExpandedItem(expandedItem === mod.id ? null : mod.id)}
                       >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-
-                      <span className="font-bold text-[10px] uppercase text-brand-red block">
-                        Modalidade #{idx + 1}
-                      </span>
+                        <span className="font-bold text-sm uppercase text-brand-red">
+                          {mod.title || `Modalidade ${idx + 1}`}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-brand-white/40">{expandedItem === mod.id ? 'Fechar' : 'Editar'}</span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); removeModality(idx); }}
+                            className="text-brand-white/30 hover:text-brand-red p-2"
+                            title="Excluir"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {expandedItem === mod.id && (
+                        <div className="p-5 pt-4 border-t border-brand-white/5 space-y-4">
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -1066,19 +1077,32 @@ export default function AdminPage() {
                 
                 <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-2">
                   {adminData.plans.map((plan, idx) => (
-                    <div key={plan.id} className="p-5 border border-brand-white/5 bg-brand-black space-y-4 relative">
-                      <button
-                        onClick={() => removePlan(idx)}
-                        className="absolute top-4 right-4 text-brand-white/30 hover:text-brand-red transition-colors"
-                        title="Excluir plano"
+                    <div key={plan.id} className="border border-brand-white/5 bg-brand-black relative">
+                      <div 
+                        className="p-4 flex justify-between items-center cursor-pointer hover:bg-brand-white/5 transition-colors"
+                        onClick={() => setExpandedItem(expandedItem === plan.id ? null : plan.id)}
                       >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-
-                      <div className="flex justify-between items-center pr-8">
-                        <span className="font-bold text-xs uppercase text-brand-red">
-                          {plan.name}
+                        <span className="font-bold text-sm uppercase text-brand-red">
+                          {plan.name || "Novo Plano"}
                         </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-brand-white/40">{expandedItem === plan.id ? 'Fechar' : 'Editar'}</span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); removePlan(idx); }}
+                            className="text-brand-white/30 hover:text-brand-red p-2"
+                            title="Excluir"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {expandedItem === plan.id && (
+                        <div className="p-5 pt-4 border-t border-brand-white/5 space-y-4">
+                          <div className="flex justify-between items-center pr-2">
+                            <span className="font-bold text-xs uppercase text-brand-red hidden">
+                              {plan.name}
+                            </span>
                         
                         <label className="flex items-center gap-2 cursor-pointer select-none text-xs">
                           <input
@@ -1275,23 +1299,23 @@ export default function AdminPage() {
           </div>
 
           {/* Bottom Save Action Controls */}
-          <div className="flex justify-between items-center mt-8 border-t border-brand-white/5 pt-6">
-            <span className="text-xs text-brand-white/40 font-medium">
+          <div className="fixed bottom-0 left-0 w-full z-[100] bg-brand-dark-gray/95 backdrop-blur-md border-t border-brand-red/20 p-4 md:p-6 flex justify-center md:justify-between items-center shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+            <span className="hidden md:inline text-xs text-brand-white/40 font-medium">
               A senha padrão é: <strong className="text-brand-white/70">masterfitness</strong>
             </span>
             
             <button
               onClick={handleSave}
               disabled={saveStatus === "saving"}
-              className="flex items-center gap-2 px-8 py-4 bg-brand-red hover:bg-brand-red-neon text-brand-white font-title font-bold text-xs uppercase tracking-widest transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 neon-glow-red"
+              className="w-full md:w-auto flex justify-center items-center gap-2 px-8 py-4 bg-brand-red hover:bg-brand-red-neon text-brand-white font-title font-bold text-sm md:text-xs uppercase tracking-widest transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 neon-glow-red"
             >
-              {saveStatus === "saving" && <RefreshCw className="w-4 h-4 animate-spin" />}
-              {saveStatus === "success" && <Check className="w-4 h-4 text-green-400" />}
-              {saveStatus === "idle" && <Save className="w-4 h-4" />}
+              {saveStatus === "saving" && <RefreshCw className="w-5 h-5 md:w-4 md:h-4 animate-spin" />}
+              {saveStatus === "success" && <Check className="w-5 h-5 md:w-4 md:h-4 text-green-400" />}
+              {saveStatus === "idle" && <Save className="w-5 h-5 md:w-4 md:h-4" />}
               <span>
                 {saveStatus === "saving" && "SALVANDO..."}
-                {saveStatus === "success" && "SALVO COM SUCESSO!"}
-                {saveStatus === "error" && "ERRO AO SALVAR"}
+                {saveStatus === "success" && "SALVO!"}
+                {saveStatus === "error" && "ERRO"}
                 {saveStatus === "idle" && "SALVAR ALTERAÇÕES"}
               </span>
             </button>
