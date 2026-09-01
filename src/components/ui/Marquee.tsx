@@ -1,24 +1,40 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 export default function Marquee() {
   const words = [
     "MASTER FITNESS", "DISCIPLINA", "FOCO", "PERFORMANCE", "SUPERAÇÃO", "RESULTADOS", 
     "SAÚDE", "FORÇA", "COMPROMISSO", "EVOLUÇÃO", "ALTA INTENSIDADE"
   ];
   
-  // Repeat words to ensure continuous flow
   const repeatedWords = [...words, ...words, ...words];
 
   return (
-    <div className="relative w-full py-5 bg-brand-red overflow-hidden border-y border-brand-red-neon/30 select-none z-10 flex items-center shadow-[0_0_20px_rgba(255,30,30,0.2)]">
-      <div className="flex whitespace-nowrap animate-marquee gap-8">
+    <div className="relative w-full py-6 bg-gradient-to-r from-brand-red via-brand-red-neon to-brand-red overflow-hidden border-y border-brand-red/30 select-none z-10 flex items-center shadow-[0_0_30px_rgba(255,30,30,0.3)]">
+      {/* Animated shine effect */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+        animate={{ x: ["-100%", "200%"] }}
+        transition={{ duration: 3, repeat: Infinity, repeatDelay: 2, ease: "easeInOut" }}
+      />
+      
+      <div className="flex whitespace-nowrap animate-marquee gap-10 relative z-10">
         {repeatedWords.map((word, i) => (
-          <div key={i} className="flex items-center gap-8">
-            <span className="font-title font-black text-sm md:text-base tracking-widest text-brand-white uppercase">
+          <motion.div 
+            key={i} 
+            className="flex items-center gap-10"
+            whileHover={{ scale: 1.05 }}
+          >
+            <span className="font-title font-black text-base md:text-lg tracking-[0.2em] text-brand-white uppercase">
               {word}
             </span>
-            <span className="w-2 h-2 bg-brand-white rotate-45 shrink-0 opacity-80" />
-          </div>
+            <motion.span 
+              className="w-2.5 h-2.5 bg-brand-white rotate-45 shrink-0"
+              animate={{ rotate: [45, 225, 45] }}
+              transition={{ duration: 4, repeat: Infinity, delay: i * 0.1 }}
+            />
+          </motion.div>
         ))}
       </div>
       
@@ -33,7 +49,10 @@ export default function Marquee() {
         }
         .animate-marquee {
           display: flex;
-          animation: marquee 25s linear infinite;
+          animation: marquee 30s linear infinite;
+        }
+        .animate-marquee:hover {
+          animation-play-state: paused;
         }
       `}</style>
     </div>

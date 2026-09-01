@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ContentData } from "@/data/content";
+import { ArrowRight } from "lucide-react";
 
 interface ModalitiesProps {
   data: ContentData["modalities"];
@@ -10,10 +11,20 @@ interface ModalitiesProps {
 
 function ModalityCard({ title, description, image, index }: { title: string; description: string; image: string; index: number }) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [rotateX, setRotateX] = useState(0);
-  const [rotateY, setRotateY] = useState(0);
-  const [glowPos, setGlowPos] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
+
+  // Motion values for smooth 3D effect
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  // Spring physics for smooth animation
+  const springConfig = { damping: 15, stiffness: 150 };
+  const rotateX = useSpring(useTransform(y, [-150, 150], [10, -10]), springConfig);
+  const rotateY = useSpring(useTransform(x, [-150, 150], [-10, 10]), springConfig);
+
+  // Glow position
+  const glowX = useSpring(useTransform(x, [-150, 150], [0, 100]), springConfig);
+  const glowY = useSpring(useTransform(y, [-150, 150], [0, 100]), springConfig);
 
   // Map default images to high-performance Unsplash assets
   const unsplashImages: Record<string, string> = {
@@ -31,25 +42,16 @@ function ModalityCard({ title, description, image, index }: { title: string; des
     if (!card) return;
 
     const rect = card.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
 
-    // Mouse coordinates relative to card
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-
-    // Calculate rotation angles (-15deg to 15deg)
-    const rX = ((mouseY - height / 2) / height) * -15;
-    const rY = ((mouseX - width / 2) / width) * 15;
-
-    setRotateX(rX);
-    setRotateY(rY);
-    setGlowPos({ x: mouseX, y: mouseY });
+    x.set(e.clientX - centerX);
+    y.set(e.clientY - centerY);
   };
 
   const handleMouseLeave = () => {
-    setRotateX(0);
-    setRotateY(0);
+    x.set(0);
+    y.set(0);
     setIsHovered(false);
   };
 
@@ -63,77 +65,195 @@ function ModalityCard({ title, description, image, index }: { title: string; des
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 80, scale: 0.9 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="relative interactive-card h-[380px] w-full bg-brand-dark-gray border border-brand-white/5 overflow-hidden group cursor-pointer flex flex-col justify-end p-6"
-      style={{
-        transformStyle: "preserve-3d",
-        transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(${isHovered ? "-8px" : "0px"})`,
-        transition: isHovered ? "none" : "all 0.5s ease",
+      transition={{ 
+        duration: 0.6, 
+        delay: index * 0.1,
+        type: "spring",
+        stiffness: 100,
       }}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+      }}
+      className="relative h-[420px] w-full bg-brand-dark-gray border border-brand-white/5 overflow-hidden group cursor-pointer"
     >
       {/* Dynamic Glow Spotlight */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"
+      <motion.div
+        className="absolute inset-0 pointer-events-none z-20"
         style={{
-          background: `radial-gradient(circle 180px at ${glowPos.x}px ${glowPos.y}px, rgba(255, 30, 30, 0.18), transparent 80%)`,
+          background: useTransform(
+            [glowX, glowY],
+            ([gx, gy]) => `radial-gradient(circle 200px at ${gx}% ${gy}%, rgba(255, 30, 30, 0.25), transparent 80%)`
+          ),
+          opacity: isHovered ? 1 : 0,
         }}
       />
 
-      {/* Grid Pattern inside card */}
-      <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.015)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none z-10" />
+      {/* Animated border gradient */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10">
+        <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-brand-red to-transparent" />
+        <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-brand-red to-transparent" />
+        <div className="absolute top-0 left-0 h-full w-[2px] bg-gradient-to-b from-transparent via-brand-red to-transparent" />
+        <div className="absolute top-0 right-0 h-full w-[2px] bg-gradient-to-b from-transparent via-brand-red to-transparent" />
+      </div>
 
-      {/* Image Overlay */}
-      <div className="absolute inset-0 bg-brand-black">
+      {/* Grid Pattern inside card */}
+      <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.02)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none z-10" />
+
+      {/* Image with parallax effect */}
+      <motion.div 
+        className="absolute inset-0 bg-brand-black"
+        style={{ transform: "translateZ(-50px)" }}
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <motion.img
           src={displayImage}
           alt={title}
-          className="w-full h-full object-cover grayscale opacity-40 group-hover:scale-110 group-hover:grayscale-0 group-hover:opacity-65 transition-all duration-700"
+          className="w-full h-full object-cover grayscale brightness-75"
+          animate={{
+            scale: isHovered ? 1.15 : 1,
+            grayscale: isHovered ? 0 : 1,
+            brightness: isHovered ? 1.1 : 0.75,
+          }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
         />
         {/* Linear overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-black via-brand-black/35 to-transparent z-10" />
-      </div>
+        <motion.div 
+          className="absolute inset-0 z-10"
+          animate={{
+            background: isHovered 
+              ? "linear-gradient(to top, rgba(5,5,5,1) 0%, rgba(5,5,5,0.7) 40%, rgba(5,5,5,0.3) 100%)"
+              : "linear-gradient(to top, rgba(5,5,5,1) 0%, rgba(5,5,5,0.5) 50%, rgba(5,5,5,0.2) 100%)",
+          }}
+          transition={{ duration: 0.4 }}
+        />
+      </motion.div>
 
       {/* Card Content */}
-      <div className="relative z-20 flex flex-col gap-2" style={{ transform: "translateZ(30px)" }}>
-        <span className="w-8 h-1 bg-brand-red mb-2 transition-all duration-500 group-hover:w-16" />
-        <h3 className="font-title font-black text-2xl uppercase text-brand-white tracking-tighter group-hover:text-brand-red transition-colors duration-300">
+      <div className="relative z-20 h-full flex flex-col justify-end p-8" style={{ transform: "translateZ(30px)" }}>
+        {/* Animated icon bar */}
+        <motion.div
+          className="w-12 h-1.5 bg-brand-red mb-4"
+          animate={{ width: isHovered ? 64 : 48 }}
+          transition={{ duration: 0.3 }}
+        />
+        
+        <motion.h3 
+          className="font-title font-black text-2xl md:text-3xl uppercase text-brand-white tracking-tighter mb-3"
+          animate={{ 
+            color: isHovered ? "#FF1E1E" : "#FFFFFF",
+            x: isHovered ? 8 : 0,
+          }}
+          transition={{ duration: 0.3 }}
+        >
           {title}
-        </h3>
-        <p className="text-brand-white/60 text-xs md:text-sm leading-relaxed max-w-xs group-hover:text-brand-white/80 transition-colors duration-300">
+        </motion.h3>
+        
+        <motion.p 
+          className="text-brand-white/60 text-sm leading-relaxed max-w-xs"
+          animate={{ 
+            color: isHovered ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.6)",
+          }}
+          transition={{ duration: 0.3 }}
+        >
           {description}
-        </p>
+        </motion.p>
+
+        {/* Reveal on hover - CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
+          transition={{ duration: 0.3 }}
+          className="mt-4 flex items-center gap-2 text-brand-red font-bold text-sm uppercase tracking-wider"
+        >
+          <span>Saiba mais</span>
+          <ArrowRight className="w-4 h-4" />
+        </motion.div>
       </div>
 
-      {/* Corner borders indicators */}
-      <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-brand-white/10 group-hover:border-brand-red transition-colors duration-300" />
-      <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-brand-white/10 group-hover:border-brand-red transition-colors duration-300" />
-      <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-brand-white/10 group-hover:border-brand-red transition-colors duration-300" />
-      <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-brand-white/10 group-hover:border-brand-red transition-colors duration-300" />
+      {/* Corner accents */}
+      <motion.div 
+        className="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 z-30"
+        animate={{ borderColor: isHovered ? "#FF1E1E" : "rgba(255,255,255,0.1)" }}
+        transition={{ duration: 0.3 }}
+      />
+      <motion.div 
+        className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 z-30"
+        animate={{ borderColor: isHovered ? "#FF1E1E" : "rgba(255,255,255,0.1)" }}
+        transition={{ duration: 0.3 }}
+      />
+      <motion.div 
+        className="absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 z-30"
+        animate={{ borderColor: isHovered ? "#FF1E1E" : "rgba(255,255,255,0.1)" }}
+        transition={{ duration: 0.3 }}
+      />
+      <motion.div 
+        className="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 z-30"
+        animate={{ borderColor: isHovered ? "#FF1E1E" : "rgba(255,255,255,0.1)" }}
+        transition={{ duration: 0.3 }}
+      />
+
+      {/* Floating number */}
+      <div className="absolute top-6 right-6 font-title font-black text-6xl text-brand-white/5 z-10 pointer-events-none">
+        {String(index + 1).padStart(2, "0")}
+      </div>
     </motion.div>
   );
 }
 
 export default function Modalities({ data }: ModalitiesProps) {
   return (
-    <section id="modalidades" className="relative py-24 bg-brand-black/95 z-10">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="modalidades" className="relative py-32 bg-brand-black z-10 overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+          className="absolute -top-40 -right-40 w-80 h-80 border border-brand-red/5 rounded-full"
+        />
+        <motion.div
+          animate={{ rotate: -360 }}
+          transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
+          className="absolute -bottom-40 -left-40 w-96 h-96 border border-brand-red/5 rounded-full"
+        />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-brand-red font-extrabold uppercase tracking-widest text-xs mb-3 block">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-2xl mx-auto mb-20"
+        >
+          <motion.span 
+            className="text-brand-red font-extrabold uppercase tracking-[0.3em] text-xs mb-4 block"
+            initial={{ opacity: 0, letterSpacing: "0.5em" }}
+            whileInView={{ opacity: 1, letterSpacing: "0.3em" }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
             MODALIDADES
-          </span>
-          <h2 className="font-title font-black text-3xl md:text-5xl text-brand-white tracking-tighter uppercase">
+          </motion.span>
+          <h2 className="font-title font-black text-4xl md:text-6xl text-brand-white tracking-tighter uppercase mb-6">
             ESCOLHA O SEU CAMINHO
           </h2>
-          <div className="w-12 h-1 bg-brand-red mx-auto mt-4 mb-6" />
-          <p className="text-brand-white/50 text-sm md:text-base">
+          <motion.div 
+            className="w-16 h-1.5 bg-brand-red mx-auto mb-8"
+            initial={{ width: 0 }}
+            whileInView={{ width: 64 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          />
+          <p className="text-brand-white/60 text-base md:text-lg leading-relaxed">
             Oferecemos uma variedade de modalidades de treinamento focadas em performance e superação de limites.
           </p>
-        </div>
+        </motion.div>
 
         {/* Modalities Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
