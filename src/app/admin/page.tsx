@@ -1,41 +1,30 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { useContent } from "@/hooks/useContent";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
-import { Lock, Save, RefreshCw, LogOut, LayoutGrid, Award, Info, CreditCard, PhoneCall, Check, AlertCircle, Eye, Plus, Trash2, Image as ImageIcon, Star, ChevronRight, Dumbbell, Users, Zap, Heart, X } from "lucide-react";
+import { 
+  Lock, Save, RefreshCw, LogOut, LayoutGrid, Award, 
+  Info, Sparkles, CreditCard, PhoneCall, Check, AlertCircle, Eye,
+  Plus, Trash2, Image as ImageIcon, Star
+} from "lucide-react";
 import { ContentData } from "@/data/content";
 
-function Toast({ message, type, onClose }: { message: string; type: "success" | "error"; onClose: () => void }) {
-  return (
-    <motion.div initial={{ opacity: 0, y: 50, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.9 }} className={`fixed bottom-24 right-6 z-[200] flex items-center gap-3 px-6 py-4 ${type === "success" ? "bg-green-500/20 border-green-500/50" : "bg-red-500/20 border-red-500/50"} border backdrop-blur-md`}>
-      {type === "success" ? <Check className="w-5 h-5 text-green-400" /> : <AlertCircle className="w-5 h-5 text-red-400" />}
-      <span className="text-sm text-brand-white font-medium">{message}</span>
-      <button onClick={onClose} className="ml-2 text-brand-white/50 hover:text-brand-white"><X className="w-4 h-4" /></button>
-    </motion.div>
-  );
-}
-
-function ConfirmDialog({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) {
-  return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[300] bg-brand-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={onCancel}>
-      <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} onClick={(e) => e.stopPropagation()} className="bg-brand-dark-gray border border-brand-white/10 p-8 max-w-md w-full">
-        <div className="flex items-center gap-3 mb-4"><div className="p-3 bg-brand-red/10 border border-brand-red/30"><AlertCircle className="w-6 h-6 text-brand-red" /></div><h3 className="font-title font-bold text-lg text-brand-white uppercase">Confirmar</h3></div>
-        <p className="text-brand-white/70 mb-8">{message}</p>
-        <div className="flex gap-4">
-          <button onClick={onCancel} className="flex-1 py-3 border border-brand-white/20 text-brand-white font-bold text-sm uppercase tracking-wider hover:bg-brand-white/5 transition-colors">Cancelar</button>
-          <button onClick={onConfirm} className="flex-1 py-3 bg-brand-red text-brand-white font-bold text-sm uppercase tracking-wider hover:bg-brand-red-neon transition-colors">Confirmar</button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-function ImageInputWithPreview({ value, onChange, label }: { value: string; onChange: (val: string) => void; label: string }) {
+// Reusable live image preview input component with client-side file uploader & compression
+function ImageInputWithPreview({
+  value,
+  onChange,
+  label
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  label: string;
+}) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
@@ -43,54 +32,96 @@ function ImageInputWithPreview({ value, onChange, label }: { value: string; onCh
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
-        const MAX = 800;
-        let w = img.width, h = img.height;
-        if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } else { if (h > MAX) { w *= MAX / h; h = MAX; } }
-        canvas.width = w; canvas.height = h;
-        ctx.drawImage(img, 0, 0, w, h);
-        onChange(canvas.toDataURL("image/jpeg", 0.70));
+
+        // Compress image to maximum 800x800 resolution to preserve localStorage space
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convert to highly compressed JPEG data URL (quality: 0.70)
+        const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.70);
+        onChange(compressedDataUrl);
       };
       img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
+
   return (
-    <div className="space-y-2">
-      <label className="block text-[10px] text-brand-white/60 uppercase tracking-widest font-bold">{label}</label>
-      <div className="flex gap-3 items-start">
-        <div className="flex-grow space-y-2">
-          <div className="relative group"><input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" /><div className="w-full bg-brand-black border border-brand-white/10 group-hover:border-brand-red/50 px-4 py-3 text-sm text-brand-white/70 group-hover:text-brand-white flex items-center gap-3 justify-center transition-all duration-300 cursor-pointer"><ImageIcon className="w-4 h-4 text-brand-red" /><span>Enviar Imagem</span></div></div>
-          <input type="text" value={value.startsWith("data:") ? "" : value} onChange={(e) => onChange(e.target.value)} placeholder="Ou cole o link da imagem..." className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-2.5 text-xs text-brand-white placeholder-brand-white/30 focus:outline-none transition-all duration-300" />
+    <div className="space-y-1">
+      <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+        {label}
+      </label>
+      <div className="flex gap-3 items-center">
+        <div className="flex-grow flex flex-col gap-2">
+          {/* Custom Styled Upload Button */}
+          <div className="relative">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+            />
+            <div className="w-full bg-brand-black border border-brand-white/10 hover:border-brand-red px-3 py-2 text-xs text-brand-white/70 hover:text-brand-white flex items-center gap-2 justify-center transition-all duration-200 cursor-pointer">
+              <ImageIcon className="w-3.5 h-3.5 text-brand-red shrink-0" />
+              <span>Enviar Imagem (Upload)</span>
+            </div>
+          </div>
+          
+          {/* Optional Text input for URLs */}
+          <input
+            type="text"
+            value={value.startsWith("data:") ? "[Imagem do Dispositivo]" : value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="Ou cole o link da imagem..."
+            className="w-full bg-brand-black/40 border border-brand-white/5 px-2.5 py-1.5 text-[10px] text-brand-white/40 focus:outline-none focus:border-brand-red focus:text-brand-white transition-colors duration-200"
+          />
         </div>
-        <div className="w-20 h-20 border border-brand-white/10 bg-brand-black flex items-center justify-center overflow-hidden shrink-0">{value ? (<img src={value} alt="Preview" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLElement).style.display = "none"; }} />) : <ImageIcon className="w-6 h-6 text-brand-white/20" />}</div>
+        
+        {/* Preview Container */}
+        <div className="w-16 h-16 border border-brand-white/10 bg-brand-black flex items-center justify-center overflow-hidden shrink-0 relative group">
+          {value ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={value}
+              alt="Preview"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLElement;
+                target.style.display = "none";
+                const fallback = target.nextSibling as HTMLElement;
+                if (fallback) fallback.style.display = "flex";
+              }}
+            />
+          ) : null}
+          <div 
+            className="absolute inset-0 bg-brand-dark-gray flex items-center justify-center text-[8px] text-brand-white/20 uppercase text-center font-bold px-1"
+            style={{ display: value ? "none" : "flex" }}
+          >
+            Sem Foto
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-
-function CollapsibleSection({ title, children, onDelete, isExpanded, onToggle }: { title: string; children: React.ReactNode; onDelete: () => void; isExpanded: boolean; onToggle: () => void }) {
-  return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="border border-brand-white/10 bg-brand-black overflow-hidden">
-      <div className="p-4 flex justify-between items-center cursor-pointer hover:bg-brand-white/5 transition-colors" onClick={onToggle}>
-        <div className="flex items-center gap-3"><motion.div animate={{ rotate: isExpanded ? 90 : 0 }} transition={{ duration: 0.2 }}><ChevronRight className="w-4 h-4 text-brand-red" /></motion.div><span className="font-bold text-sm text-brand-white">{title}</span></div>
-        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={(e) => { e.stopPropagation(); onDelete(); }} className="p-2 text-brand-white/30 hover:text-brand-red hover:bg-brand-red/10 transition-colors"><Trash2 className="w-4 h-4" /></motion.button>
-      </div>
-      <AnimatePresence>{isExpanded && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} className="overflow-hidden"><div className="p-5 border-t border-brand-white/10 space-y-4">{children}</div></motion.div>)}</AnimatePresence>
-    </motion.div>
-  );
-}
-
-const tabs = [
-  { id: "hero", label: "Hero", icon: LayoutGrid },
-  { id: "stats", label: "Numeros", icon: Award },
-  { id: "about", label: "Sobre", icon: Info },
-  { id: "modalities", label: "Modalidades", icon: Dumbbell },
-  { id: "gallery", label: "Galeria", icon: ImageIcon },
-  { id: "transformations", label: "Resultados", icon: Zap },
-  { id: "testimonials", label: "Depoimentos", icon: Heart },
-  { id: "plans", label: "Planos", icon: CreditCard },
-  { id: "contact", label: "Contato", icon: PhoneCall },
-];
 
 export default function AdminPage() {
   const { content, updateContent, resetContent, isLoaded } = useContent();
@@ -101,46 +132,1198 @@ export default function AdminPage() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
   const [adminData, setAdminData] = useState<ContentData | null>(null);
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
-  const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
+
   const ADMIN_PASSWORD = "Marcelo2026";
 
-  const showToast = useCallback((message: string, type: "success" | "error") => { setToast({ message, type }); setTimeout(() => setToast(null), 4000); }, []);
-  const handleLogin = (e: React.FormEvent) => { e.preventDefault(); if (password === ADMIN_PASSWORD) { setIsAuthorized(true); setAuthError(false); setAdminData(JSON.parse(JSON.stringify(content))); } else { setAuthError(true); } };
-  const handleSave = () => { if (!adminData) return; setSaveStatus("saving"); try { updateContent(adminData); setSaveStatus("success"); showToast("Salvo com sucesso!", "success"); setTimeout(() => setSaveStatus("idle"), 3000); } catch { setSaveStatus("error"); showToast("Erro ao salvar!", "error"); setTimeout(() => setSaveStatus("idle"), 3000); } };
-  const handleReset = () => { setConfirmDialog({ message: "Deseja redefinir todo o conteudo para os padroes de fabrica?", onConfirm: () => { resetContent(); window.location.reload(); } }); };
-  const handleLogout = () => { setIsAuthorized(false); setPassword(""); setAdminData(null); };
-  const addItem = (type: string, newItem: object) => { if (!adminData) return; const key = type as keyof ContentData; setAdminData({ ...adminData, [key]: [...(adminData[key] as object[]), newItem] }); };
-  const removeItem = (type: string, idx: number) => { if (!adminData) return; const key = type as keyof ContentData; const updated = [...(adminData[key] as object[])]; updated.splice(idx, 1); setAdminData({ ...adminData, [key]: updated }); };
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === ADMIN_PASSWORD) {
+      setIsAuthorized(true);
+      setAuthError(false);
+      setAdminData(JSON.parse(JSON.stringify(content))); // Deep clone content state
+    } else {
+      setAuthError(true);
+    }
+  };
 
-  if (!isLoaded || (isAuthorized && !adminData)) { return (<div className="min-h-screen bg-brand-black flex items-center justify-center"><motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}><RefreshCw className="w-10 h-10 text-brand-red" /></motion.div></div>); }
+  const handleSave = () => {
+    if (!adminData) return;
+    setSaveStatus("saving");
+    try {
+      updateContent(adminData);
+      setSaveStatus("success");
+      setTimeout(() => setSaveStatus("idle"), 3000);
+    } catch {
+      setSaveStatus("error");
+      setTimeout(() => setSaveStatus("idle"), 3000);
+    }
+  };
 
+  const handleReset = () => {
+    if (window.confirm("Deseja realmente redefinir todo o conteúdo do site para os padrões de fábrica?")) {
+      resetContent();
+      window.location.reload();
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthorized(false);
+    setPassword("");
+    setAdminData(null);
+  };
+
+  if (!isLoaded || (isAuthorized && !adminData)) {
+    return (
+      <div className="min-h-screen bg-brand-black flex items-center justify-center">
+        <RefreshCw className="w-8 h-8 text-brand-red animate-spin" />
+      </div>
+    );
+  }
+
+  // Authorization Form Screen
   if (!isAuthorized) {
     return (
-      <div className="min-h-screen bg-brand-black flex items-center justify-center px-6 relative overflow-hidden">
-        <div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,30,30,0.08),transparent_60%)]" /><motion.div animate={{ rotate: 360 }} transition={{ duration: 120, repeat: Infinity, ease: "linear" }} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-brand-red/5 rounded-full" /></div>
-        <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="w-full max-w-md p-10 bg-brand-dark-gray border border-brand-white/10 z-10 relative">
-          <div className="flex flex-col items-center text-center mb-10"><motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: "spring" }} className="p-5 bg-brand-red/10 border border-brand-red/30 mb-6"><Lock className="w-10 h-10 text-brand-red" /></motion.div><h1 className="font-title font-black text-3xl text-brand-white uppercase tracking-tighter">PAINEL ADMIN</h1><p className="text-sm text-brand-white/50 mt-2 uppercase tracking-widest font-medium">Master Fitness Ibaiti</p></div>
+      <div className="min-h-screen bg-brand-black flex items-center justify-center px-6 relative">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,30,30,0.05),transparent_60%)]" />
+        
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="w-full max-w-md p-8 bg-brand-dark-gray border border-brand-white/10 z-10 relative"
+        >
+          <div className="flex flex-col items-center text-center mb-8">
+            <div className="p-4 bg-brand-red/10 border border-brand-red/30 rounded-none mb-4">
+              <Lock className="w-8 h-8 text-brand-red" />
+            </div>
+            <h1 className="font-title font-black text-2xl text-brand-white uppercase tracking-tighter">
+              PAINEL ADMINISTRATIVO
+            </h1>
+            <p className="text-xs text-brand-white/40 mt-1 uppercase tracking-widest font-extrabold">
+              Master Fitness Ibaiti
+            </p>
+          </div>
+
           <form onSubmit={handleLogin} className="space-y-6">
-            <div><label className="block text-[10px] text-brand-white/60 uppercase tracking-widest font-bold mb-3">Senha de Acesso</label><input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-5 py-4 text-base text-brand-white placeholder-brand-white/20 focus:outline-none transition-all duration-300 focus:shadow-[0_0_20px_rgba(255,30,30,0.2)]" placeholder="Digite sua senha" /><AnimatePresence>{authError && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex items-center gap-2 mt-3 text-sm text-brand-red"><AlertCircle className="w-4 h-4 shrink-0" /><span>Senha incorreta!</span></motion.div>)}</AnimatePresence></div>
-            <motion.button type="submit" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full py-5 bg-gradient-to-r from-brand-red to-brand-red-neon text-brand-white font-title font-bold text-sm uppercase tracking-widest transition-all duration-300 shadow-[0_4px_20px_rgba(255,30,30,0.3)]">Entrar no Painel</motion.button>
+            <div>
+              <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-black mb-2">
+                Senha de Acesso
+              </label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white placeholder-brand-white/10 focus:outline-none transition-colors duration-300"
+                placeholder="Insira a senha admin"
+              />
+              {authError && (
+                <div className="flex items-center gap-2 mt-2 text-xs text-brand-red">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>Senha incorreta! Dica: &apos;masterfitness&apos;</span>
+                </div>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-4 bg-brand-red text-brand-white font-title font-bold text-xs uppercase tracking-widest transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] neon-glow-red"
+            >
+              ENTRAR NO PAINEL
+            </button>
           </form>
-          <div className="text-center mt-8"><Link href="/" className="text-sm text-brand-white/40 hover:text-brand-white transition-colors uppercase tracking-widest font-medium">Voltar ao Site</Link></div>
+          
+          <div className="text-center mt-6">
+            <Link href="/" className="text-xs text-brand-white/40 hover:text-brand-white transition-colors uppercase tracking-widest font-black">
+              Voltar ao Site
+            </Link>
+          </div>
         </motion.div>
       </div>
     );
   }
 
+  // Helper arrays for simple list operations
+  const addModality = () => {
+    if (!adminData) return;
+    const newMod = {
+      id: "mod_" + Date.now(),
+      title: "Nova Modalidade",
+      description: "Descrição breve da modalidade.",
+      image: "/images/mod-musculacao.png"
+    };
+    setAdminData({
+      ...adminData,
+      modalities: [...adminData.modalities, newMod]
+    });
+  };
+
+  const removeModality = (idx: number) => {
+    if (!adminData) return;
+    const updated = [...adminData.modalities];
+    updated.splice(idx, 1);
+    setAdminData({ ...adminData, modalities: updated });
+  };
+
+  const addGalleryImage = () => {
+    if (!adminData) return;
+    const newImg = {
+      id: "g_" + Date.now(),
+      title: "Novo Registro",
+      image: "/images/gal-1.png",
+      category: "Infraestrutura"
+    };
+    setAdminData({
+      ...adminData,
+      gallery: [...adminData.gallery, newImg]
+    });
+  };
+
+  const removeGalleryImage = (idx: number) => {
+    if (!adminData) return;
+    const updated = [...adminData.gallery];
+    updated.splice(idx, 1);
+    setAdminData({ ...adminData, gallery: updated });
+  };
+
+  const addTransformation = () => {
+    if (!adminData) return;
+    const newTrans = {
+      id: "t_" + Date.now(),
+      title: "Nova Evolução",
+      description: "Detalhes do foco no treino e conquistas obtidas.",
+      beforeImage: "/images/gal-2.png",
+      afterImage: "/images/gal-5.png",
+      studentName: "Nome do Aluno"
+    };
+    setAdminData({
+      ...adminData,
+      transformations: [...adminData.transformations, newTrans]
+    });
+  };
+
+  const removeTransformation = (idx: number) => {
+    if (!adminData) return;
+    const updated = [...adminData.transformations];
+    updated.splice(idx, 1);
+    setAdminData({ ...adminData, transformations: updated });
+  };
+
+  const addTestimonial = () => {
+    if (!adminData) return;
+    const newTest = {
+      id: "d_" + Date.now(),
+      name: "Nome do Aluno",
+      role: "Aluno da Master",
+      text: "Excelente academia, ótima experiência!",
+      image: "/images/gal-5.png",
+      rating: 5
+    };
+    setAdminData({
+      ...adminData,
+      testimonials: [...adminData.testimonials, newTest]
+    });
+  };
+
+  const removeTestimonial = (idx: number) => {
+    if (!adminData) return;
+    const updated = [...adminData.testimonials];
+    updated.splice(idx, 1);
+    setAdminData({ ...adminData, testimonials: updated });
+  };
+
+  const addPlan = () => {
+    if (!adminData) return;
+    const newPlan = {
+      id: "p_" + Date.now(),
+      name: "NOVO PLANO",
+      price: "100,00",
+      period: "mês",
+      description: "Descrição rápida dos termos do plano.",
+      features: ["Acesso livre à musculação", "Acompanhamento profissional"],
+      recommended: false,
+      ctaText: "MATRICULAR AGORA"
+    };
+    setAdminData({
+      ...adminData,
+      plans: [...adminData.plans, newPlan]
+    });
+  };
+
+  const removePlan = (idx: number) => {
+    if (!adminData) return;
+    const updated = [...adminData.plans];
+    updated.splice(idx, 1);
+    setAdminData({ ...adminData, plans: updated });
+  };
+
   return (
-    <div className="min-h-screen bg-brand-black text-brand-white flex flex-col">
-      <header className="bg-brand-dark-gray/95 backdrop-blur-md border-b border-brand-white/10 py-4 px-6 md:px-10 sticky top-0 z-[50]"><div className="max-w-7xl mx-auto flex justify-between items-center"><div className="flex items-center gap-4"><span className="font-title font-black text-2xl tracking-tighter text-brand-white">MASTER<span className="text-brand-red">FITNESS</span></span><span className="px-3 py-1 border border-brand-white/20 bg-brand-white/5 text-[10px] uppercase tracking-widest font-bold text-brand-white/60">Admin</span></div><div className="flex items-center gap-3"><Link href="/" target="_blank" className="flex items-center gap-2 px-4 py-2 border border-brand-white/10 hover:border-brand-white/30 text-sm font-medium uppercase tracking-wider transition-all duration-300 hover:bg-brand-white/5"><Eye className="w-4 h-4" /><span className="hidden sm:inline">Ver Site</span></Link><button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 border border-brand-red/30 hover:bg-brand-red/10 text-brand-red text-sm font-medium uppercase tracking-wider transition-all duration-300"><LogOut className="w-4 h-4" /><span className="hidden sm:inline">Sair</span></button></div></div></header>
-      <div className="flex-1 flex flex-col lg:flex-row max-w-7xl w-full mx-auto">
-        <aside className="lg:w-72 bg-brand-dark-gray border-b lg:border-b-0 lg:border-r border-brand-white/10 p-4 lg:p-6"><nav className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">{tabs.map((tab) => { const Icon = tab.icon; return (<motion.button key={tab.id} onClick={() => { setActiveTab(tab.id); setExpandedItem(null); }} whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }} className={`flex-shrink-0 lg:w-full flex items-center gap-3 px-4 py-3 text-sm uppercase tracking-wider font-bold transition-all duration-300 text-left border ${activeTab === tab.id ? "bg-brand-red border-brand-red text-brand-white shadow-[0_4px_15px_rgba(255,30,30,0.3)]" : "border-transparent text-brand-white/60 hover:text-brand-white hover:bg-brand-white/5"}`}><Icon className="w-5 h-5" /><span>{tab.label}</span></motion.button>); })}</nav><div className="hidden lg:block mt-8 pt-6 border-t border-brand-white/10"><motion.button onClick={handleReset} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-brand-red/30 text-brand-red text-sm uppercase tracking-widest font-bold hover:bg-brand-red/10 transition-all duration-300"><RefreshCw className="w-4 h-4" />Redefinir</motion.button></div></aside>
-        <main className="flex-1 p-6 md:p-8 pb-32 overflow-y-auto"><AnimatePresence mode="wait"><motion.div key={activeTab} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>{activeTab === "hero" && adminData && (<div className="space-y-8"><div><h2 className="font-title font-black text-2xl uppercase text-brand-white mb-2">Hero - Banner Inicial</h2><p className="text-brand-white/50 text-sm">Configure a secao principal da pagina inicial</p></div><div className="space-y-6"><div><label className="block text-[10px] text-brand-white/60 uppercase tracking-widest font-bold mb-3">Titulo do Banner</label><input type="text" value={adminData.hero.title} onChange={(e) => setAdminData({...adminData, hero: {...adminData.hero, title: e.target.value}})} className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-5 py-4 text-base text-brand-white focus:outline-none transition-all duration-300" /></div><div><label className="block text-[10px] text-brand-white/60 uppercase tracking-widest font-bold mb-3">Subtitulo</label><textarea value={adminData.hero.subtitle} onChange={(e) => setAdminData({...adminData, hero: {...adminData.hero, subtitle: e.target.value}})} rows={3} className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-5 py-4 text-base text-brand-white focus:outline-none resize-none transition-all duration-300" /></div><div className="grid grid-cols-1 md:grid-cols-2 gap-6"><div><label className="block text-[10px] text-brand-white/60 uppercase tracking-widest font-bold mb-3">Link WhatsApp (Matricula)</label><input type="text" value={adminData.hero.enrollLink} onChange={(e) => setAdminData({...adminData, hero: {...adminData.hero, enrollLink: e.target.value}})} className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-5 py-4 text-sm text-brand-white focus:outline-none transition-all duration-300" /></div><div><label className="block text-[10px] text-brand-white/60 uppercase tracking-widest font-bold mb-3">Numero WhatsApp (Display)</label><input type="text" value={adminData.hero.whatsappNumber} onChange={(e) => setAdminData({...adminData, hero: {...adminData.hero, whatsappNumber: e.target.value}})} className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-5 py-4 text-sm text-brand-white focus:outline-none transition-all duration-300" /></div></div></div></div>)}</motion.div></AnimatePresence></main>
+    <div className="min-h-screen bg-brand-black text-brand-white flex flex-col z-10 relative">
+      
+      {/* Header bar */}
+      <header className="bg-brand-dark-gray border-b border-brand-white/5 py-4 px-6 md:px-12 flex justify-between items-center sticky top-0 z-[50]">
+        <div className="flex items-center gap-3">
+          <span className="font-title font-black text-xl tracking-tighter text-brand-white">
+            MASTER<span className="text-brand-red">FITNESS</span>
+          </span>
+          <span className="px-2 py-0.5 border border-brand-white/15 bg-brand-white/5 text-[9px] uppercase tracking-widest font-extrabold text-brand-white/60">
+            Painel Admin
+          </span>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <Link
+            href="/"
+            target="_blank"
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-brand-white/10 hover:border-brand-white/30 text-xs font-bold uppercase tracking-wider transition-colors duration-300"
+          >
+            <Eye className="w-4 h-4" />
+            <span>Ver Site</span>
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-brand-red/30 hover:bg-brand-red/10 text-brand-red text-xs font-bold uppercase tracking-wider transition-colors duration-300"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Sair</span>
+          </button>
+        </div>
+      </header>
+
+      {/* Main Grid Workspace */}
+      <div className="flex-1 flex flex-col lg:grid lg:grid-cols-12 gap-0 max-w-7xl w-full mx-auto p-4 md:p-8 pb-32">
+        
+        {/* Sidebar Nav Tabs */}
+        <aside className="lg:col-span-3 bg-brand-dark-gray border border-brand-white/5 p-4 flex flex-row lg:flex-col gap-2 h-fit overflow-x-auto whitespace-nowrap lg:whitespace-normal scrollbar-hide">
+          {[
+            { id: "hero", label: "Hero (Início)", icon: <LayoutGrid className="w-4 h-4" /> },
+            { id: "stats", label: "Números", icon: <Award className="w-4 h-4" /> },
+            { id: "about", label: "Sobre Nós", icon: <Info className="w-4 h-4" /> },
+            { id: "modalities", label: "Modalidades", icon: <Sparkles className="w-4 h-4" /> },
+            { id: "gallery", label: "Galeria de Fotos", icon: <ImageIcon className="w-4 h-4" /> },
+            { id: "transformations", label: "Antes e Depois", icon: <Eye className="w-4 h-4" /> },
+            { id: "testimonials", label: "Depoimentos", icon: <Award className="w-4 h-4" /> },
+            { id: "plans", label: "Planos", icon: <CreditCard className="w-4 h-4" /> },
+            { id: "contact", label: "Contato / Redes", icon: <PhoneCall className="w-4 h-4" /> },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => { setActiveTab(tab.id); setExpandedItem(null); }}
+              className={`flex-shrink-0 lg:w-full flex items-center gap-3 px-4 py-3 text-xs uppercase tracking-wider font-extrabold transition-all duration-300 text-left border ${
+                activeTab === tab.id
+                  ? "bg-brand-red border-brand-red text-brand-white shadow-[0_2px_10px_rgba(255,30,30,0.25)]"
+                  : "border-transparent text-brand-white/60 hover:text-brand-white hover:bg-brand-white/5"
+              }`}
+            >
+              {tab.icon}
+              <span>{tab.label}</span>
+            </button>
+          ))}
+
+          <hr className="hidden lg:block border-brand-white/5 my-4" />
+
+          {/* Dangerous Zone */}
+          <button
+            onClick={handleReset}
+            className="flex-shrink-0 lg:w-full flex items-center justify-center gap-2 px-4 py-3 border border-brand-red/20 text-brand-red text-xs uppercase tracking-widest font-black hover:bg-brand-red/5 transition-all duration-300"
+          >
+            Redefinir Dados
+          </button>
+        </aside>
+
+        {/* Content edit block */}
+        <main className="lg:col-span-9 bg-brand-dark-gray border border-l-0 lg:border-l border-brand-white/5 p-6 md:p-8 flex flex-col justify-between">
+          <div className="space-y-8">
+            
+            {/* TAB: HERO */}
+            {activeTab === "hero" && adminData && (
+              <div className="space-y-6">
+                <h3 className="font-title font-black text-xl uppercase border-b border-brand-white/5 pb-2 text-brand-red">
+                  Seção Hero (Banner Inicial)
+                </h3>
+                
+                <div className="grid grid-cols-1 gap-6">
+                  <div>
+                    <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                      Título do Banner (Cinema)
+                    </label>
+                    <input
+                      type="text"
+                      value={adminData.hero.title}
+                      onChange={(e) => setAdminData({
+                        ...adminData,
+                        hero: { ...adminData.hero, title: e.target.value }
+                      })}
+                      className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                      Subtítulo descritivo
+                    </label>
+                    <textarea
+                      value={adminData.hero.subtitle}
+                      onChange={(e) => setAdminData({
+                        ...adminData,
+                        hero: { ...adminData.hero, subtitle: e.target.value }
+                      })}
+                      rows={3}
+                      className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none resize-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                        Link do WhatsApp (Matrícula)
+                      </label>
+                      <input
+                        type="text"
+                        value={adminData.hero.enrollLink}
+                        onChange={(e) => setAdminData({
+                          ...adminData,
+                          hero: { ...adminData.hero, enrollLink: e.target.value }
+                        })}
+                        className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                        Número do WhatsApp (Display)
+                      </label>
+                      <input
+                        type="text"
+                        value={adminData.hero.whatsappNumber}
+                        onChange={(e) => setAdminData({
+                          ...adminData,
+                          hero: { ...adminData.hero, whatsappNumber: e.target.value }
+                        })}
+                        className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB: STATS */}
+            {activeTab === "stats" && adminData && (
+              <div className="space-y-6">
+                <h3 className="font-title font-black text-xl uppercase border-b border-brand-white/5 pb-2 text-brand-red">
+                  Seção de Números de Impacto
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                      Quantidade de Alunos
+                    </label>
+                    <input
+                      type="number"
+                      value={adminData.stats.students}
+                      onChange={(e) => setAdminData({
+                        ...adminData,
+                        stats: { ...adminData.stats, students: parseInt(e.target.value) || 0 }
+                      })}
+                      className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                      Anos de Experiência
+                    </label>
+                    <input
+                      type="number"
+                      value={adminData.stats.years}
+                      onChange={(e) => setAdminData({
+                        ...adminData,
+                        stats: { ...adminData.stats, years: parseInt(e.target.value) || 0 }
+                      })}
+                      className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                      Quantidade de Transformações
+                    </label>
+                    <input
+                      type="number"
+                      value={adminData.stats.transformations}
+                      onChange={(e) => setAdminData({
+                        ...adminData,
+                        stats: { ...adminData.stats, transformations: parseInt(e.target.value) || 0 }
+                      })}
+                      className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                      Destaque Estrutura
+                    </label>
+                    <input
+                      type="text"
+                      value={adminData.stats.equipments}
+                      onChange={(e) => setAdminData({
+                        ...adminData,
+                        stats: { ...adminData.stats, equipments: e.target.value }
+                      })}
+                      className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB: ABOUT */}
+            {activeTab === "about" && adminData && (
+              <div className="space-y-6">
+                <h3 className="font-title font-black text-xl uppercase border-b border-brand-white/5 pb-2 text-brand-red">
+                  Seção Sobre Nós
+                </h3>
+                
+                <div className="space-y-6">
+                  <ImageInputWithPreview
+                    label="Foto Ilustrativa"
+                    value={adminData.about.imageUrl}
+                    onChange={(val) => setAdminData({
+                      ...adminData,
+                      about: { ...adminData.about, imageUrl: val }
+                    })}
+                  />
+
+                  <div>
+                    <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                      Título Principal
+                    </label>
+                    <input
+                      type="text"
+                      value={adminData.about.title}
+                      onChange={(e) => setAdminData({
+                        ...adminData,
+                        about: { ...adminData.about, title: e.target.value }
+                      })}
+                      className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                      Subtítulo / Frase Destaque
+                    </label>
+                    <input
+                      type="text"
+                      value={adminData.about.subtitle}
+                      onChange={(e) => setAdminData({
+                        ...adminData,
+                        about: { ...adminData.about, subtitle: e.target.value }
+                      })}
+                      className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                      Parágrafo de Introdução (1)
+                    </label>
+                    <textarea
+                      value={adminData.about.text1}
+                      onChange={(e) => setAdminData({
+                        ...adminData,
+                        about: { ...adminData.about, text1: e.target.value }
+                      })}
+                      rows={3}
+                      className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none resize-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                      Parágrafo Complementar (2)
+                    </label>
+                    <textarea
+                      value={adminData.about.text2}
+                      onChange={(e) => setAdminData({
+                        ...adminData,
+                        about: { ...adminData.about, text2: e.target.value }
+                      })}
+                      rows={3}
+                      className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none resize-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB: MODALITIES */}
+            {activeTab === "modalities" && adminData && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center border-b border-brand-white/5 pb-2">
+                  <h3 className="font-title font-black text-xl uppercase text-brand-red">
+                    Gerenciar Modalidades
+                  </h3>
+                  <button
+                    onClick={addModality}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-brand-red text-brand-white text-xs font-bold uppercase tracking-wider hover:bg-brand-red-neon transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Adicionar Modalidade</span>
+                  </button>
+                </div>
+                
+                <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-2">
+                  {adminData.modalities.map((mod, idx) => (
+                    <div key={mod.id} className="border border-brand-white/5 bg-brand-black relative">
+                      <div 
+                        className="p-4 flex justify-between items-center cursor-pointer hover:bg-brand-white/5 transition-colors"
+                        onClick={() => setExpandedItem(expandedItem === mod.id ? null : mod.id)}
+                      >
+                        <span className="font-bold text-sm uppercase text-brand-red">
+                          {mod.title || `Modalidade ${idx + 1}`}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-brand-white/40">{expandedItem === mod.id ? 'Fechar' : 'Editar'}</span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); removeModality(idx); }}
+                            className="text-brand-white/30 hover:text-brand-red p-2"
+                            title="Excluir"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {expandedItem === mod.id && (
+                        <div className="p-5 pt-4 border-t border-brand-white/5 space-y-4">
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Título
+                          </label>
+                          <input
+                            type="text"
+                            value={mod.title}
+                            onChange={(e) => {
+                              const updated = [...adminData.modalities];
+                              updated[idx].title = e.target.value;
+                              setAdminData({ ...adminData, modalities: updated });
+                            }}
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                          />
+                        </div>
+
+                        <ImageInputWithPreview
+                          label="Imagem de Fundo"
+                          value={mod.image}
+                          onChange={(val) => {
+                            const updated = [...adminData.modalities];
+                            updated[idx].image = val;
+                            setAdminData({ ...adminData, modalities: updated });
+                          }}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                          Descrição
+                        </label>
+                        <input
+                          type="text"
+                          value={mod.description}
+                          onChange={(e) => {
+                            const updated = [...adminData.modalities];
+                            updated[idx].description = e.target.value;
+                            setAdminData({ ...adminData, modalities: updated });
+                          }}
+                          className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: GALLERY */}
+            {activeTab === "gallery" && adminData && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center border-b border-brand-white/5 pb-2">
+                  <h3 className="font-title font-black text-xl uppercase text-brand-red">
+                    Galeria de Fotos
+                  </h3>
+                  <button
+                    onClick={addGalleryImage}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-brand-red text-brand-white text-xs font-bold uppercase tracking-wider hover:bg-brand-red-neon transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Adicionar Foto</span>
+                  </button>
+                </div>
+                
+                <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-2">
+                  {adminData.gallery.map((img, idx) => (
+                    <div key={img.id} className="p-5 border border-brand-white/5 bg-brand-black space-y-4 relative">
+                      <button
+                        onClick={() => removeGalleryImage(idx)}
+                        className="absolute top-4 right-4 text-brand-white/30 hover:text-brand-red transition-colors"
+                        title="Excluir imagem"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      <span className="font-bold text-[10px] uppercase text-brand-red block">
+                        Foto #{idx + 1}
+                      </span>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Legenda / Título
+                          </label>
+                          <input
+                            type="text"
+                            value={img.title}
+                            onChange={(e) => {
+                              const updated = [...adminData.gallery];
+                              updated[idx].title = e.target.value;
+                              setAdminData({ ...adminData, gallery: updated });
+                            }}
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Categoria
+                          </label>
+                          <select
+                            value={img.category}
+                            onChange={(e) => {
+                              const updated = [...adminData.gallery];
+                              updated[idx].category = e.target.value;
+                              setAdminData({ ...adminData, gallery: updated });
+                            }}
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none h-[38px]"
+                          >
+                            <option value="Infraestrutura">Infraestrutura</option>
+                            <option value="Treino">Treino</option>
+                            <option value="Comunidade">Comunidade</option>
+                          </select>
+                        </div>
+
+                        <ImageInputWithPreview
+                          label="Imagem"
+                          value={img.image}
+                          onChange={(val) => {
+                            const updated = [...adminData.gallery];
+                            updated[idx].image = val;
+                            setAdminData({ ...adminData, gallery: updated });
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: TRANSFORMATIONS */}
+            {activeTab === "transformations" && adminData && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center border-b border-brand-white/5 pb-2">
+                  <h3 className="font-title font-black text-xl uppercase text-brand-red">
+                    Antes e Depois (Resultados)
+                  </h3>
+                  <button
+                    onClick={addTransformation}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-brand-red text-brand-white text-xs font-bold uppercase tracking-wider hover:bg-brand-red-neon transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Adicionar Resultados</span>
+                  </button>
+                </div>
+                
+                <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-2">
+                  {adminData.transformations.map((trans, idx) => (
+                    <div key={trans.id} className="p-5 border border-brand-white/5 bg-brand-black space-y-4 relative">
+                      <button
+                        onClick={() => removeTransformation(idx)}
+                        className="absolute top-4 right-4 text-brand-white/30 hover:text-brand-red transition-colors"
+                        title="Excluir resultados"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      <span className="font-bold text-[10px] uppercase text-brand-red block">
+                        Resultados #{idx + 1}
+                      </span>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Nome do Aluno
+                          </label>
+                          <input
+                            type="text"
+                            value={trans.studentName}
+                            onChange={(e) => {
+                              const updated = [...adminData.transformations];
+                              updated[idx].studentName = e.target.value;
+                              setAdminData({ ...adminData, transformations: updated });
+                            }}
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Legenda / Período (ex: 6 meses)
+                          </label>
+                          <input
+                            type="text"
+                            value={trans.title}
+                            onChange={(e) => {
+                              const updated = [...adminData.transformations];
+                              updated[idx].title = e.target.value;
+                              setAdminData({ ...adminData, transformations: updated });
+                            }}
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                          />
+                        </div>
+
+                        <ImageInputWithPreview
+                          label="Foto Antes"
+                          value={trans.beforeImage}
+                          onChange={(val) => {
+                            const updated = [...adminData.transformations];
+                            updated[idx].beforeImage = val;
+                            setAdminData({ ...adminData, transformations: updated });
+                          }}
+                        />
+
+                        <ImageInputWithPreview
+                          label="Foto Depois"
+                          value={trans.afterImage}
+                          onChange={(val) => {
+                            const updated = [...adminData.transformations];
+                            updated[idx].afterImage = val;
+                            setAdminData({ ...adminData, transformations: updated });
+                          }}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                          Breve Descrição do Foco / Progresso
+                        </label>
+                        <input
+                          type="text"
+                          value={trans.description}
+                          onChange={(e) => {
+                            const updated = [...adminData.transformations];
+                            updated[idx].description = e.target.value;
+                            setAdminData({ ...adminData, transformations: updated });
+                          }}
+                          className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: TESTIMONIALS */}
+            {activeTab === "testimonials" && adminData && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center border-b border-brand-white/5 pb-2">
+                  <h3 className="font-title font-black text-xl uppercase text-brand-red">
+                    Depoimentos de Alunos
+                  </h3>
+                  <button
+                    onClick={addTestimonial}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-brand-red text-brand-white text-xs font-bold uppercase tracking-wider hover:bg-brand-red-neon transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Adicionar Depoimento</span>
+                  </button>
+                </div>
+                
+                <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-2">
+                  {adminData.testimonials.map((test, idx) => (
+                    <div key={test.id} className="p-5 border border-brand-white/5 bg-brand-black space-y-4 relative">
+                      <button
+                        onClick={() => removeTestimonial(idx)}
+                        className="absolute top-4 right-4 text-brand-white/30 hover:text-brand-red transition-colors"
+                        title="Excluir depoimento"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      <span className="font-bold text-[10px] uppercase text-brand-red block">
+                        Depoimento #{idx + 1}
+                      </span>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Nome
+                          </label>
+                          <input
+                            type="text"
+                            value={test.name}
+                            onChange={(e) => {
+                              const updated = [...adminData.testimonials];
+                              updated[idx].name = e.target.value;
+                              setAdminData({ ...adminData, testimonials: updated });
+                            }}
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Legenda (ex: Aluno há 1 ano)
+                          </label>
+                          <input
+                            type="text"
+                            value={test.role}
+                            onChange={(e) => {
+                              const updated = [...adminData.testimonials];
+                              updated[idx].role = e.target.value;
+                              setAdminData({ ...adminData, testimonials: updated });
+                            }}
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Avaliação (Estrelas de 1 a 5)
+                          </label>
+                          <div className="flex gap-2 items-center h-[38px]">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button
+                                key={star}
+                                type="button"
+                                onClick={() => {
+                                  const updated = [...adminData.testimonials];
+                                  updated[idx].rating = star;
+                                  setAdminData({ ...adminData, testimonials: updated });
+                                }}
+                                className="focus:outline-none"
+                              >
+                                <Star 
+                                  className={`w-5 h-5 ${
+                                    star <= test.rating ? "text-yellow-500 fill-yellow-500" : "text-brand-white/20"
+                                  }`} 
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <ImageInputWithPreview
+                          label="Foto de Perfil"
+                          value={test.image}
+                          onChange={(val) => {
+                            const updated = [...adminData.testimonials];
+                            updated[idx].image = val;
+                            setAdminData({ ...adminData, testimonials: updated });
+                          }}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                          Depoimento
+                        </label>
+                        <textarea
+                          value={test.text}
+                          onChange={(e) => {
+                            const updated = [...adminData.testimonials];
+                            updated[idx].text = e.target.value;
+                            setAdminData({ ...adminData, testimonials: updated });
+                          }}
+                          rows={2}
+                          className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2 text-xs text-brand-white focus:outline-none resize-none"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: PLANS */}
+            {activeTab === "plans" && adminData && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center border-b border-brand-white/5 pb-2">
+                  <h3 className="font-title font-black text-xl uppercase text-brand-red">
+                    Gerenciar Planos e Preços
+                  </h3>
+                  <button
+                    onClick={addPlan}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-brand-red text-brand-white text-xs font-bold uppercase tracking-wider hover:bg-brand-red-neon transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Adicionar Plano</span>
+                  </button>
+                </div>
+                
+                <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-2">
+                  {adminData.plans.map((plan, idx) => (
+                    <div key={plan.id} className="border border-brand-white/5 bg-brand-black relative">
+                      <div 
+                        className="p-4 flex justify-between items-center cursor-pointer hover:bg-brand-white/5 transition-colors"
+                        onClick={() => setExpandedItem(expandedItem === plan.id ? null : plan.id)}
+                      >
+                        <span className="font-bold text-sm uppercase text-brand-red">
+                          {plan.name || "Novo Plano"}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-brand-white/40">{expandedItem === plan.id ? 'Fechar' : 'Editar'}</span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); removePlan(idx); }}
+                            className="text-brand-white/30 hover:text-brand-red p-2"
+                            title="Excluir"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {expandedItem === plan.id && (
+                        <div className="p-5 pt-4 border-t border-brand-white/5 space-y-4">
+                          <div className="flex justify-between items-center pr-2">
+                            <span className="font-bold text-xs uppercase text-brand-red hidden">
+                              {plan.name}
+                            </span>
+                        
+                        <label className="flex items-center gap-2 cursor-pointer select-none text-xs">
+                          <input
+                            type="checkbox"
+                            checked={plan.recommended}
+                            onChange={(e) => {
+                              // Reset recommendation of other plans first, only allow 1 recommended
+                              const updated = adminData.plans.map((p, pIdx) => ({
+                                ...p,
+                                recommended: pIdx === idx ? e.target.checked : false
+                              }));
+                              setAdminData({ ...adminData, plans: updated });
+                            }}
+                            className="accent-brand-red"
+                          />
+                          <span>Mais Recomendado</span>
+                        </label>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Nome do Plano
+                          </label>
+                          <input
+                            type="text"
+                            value={plan.name}
+                            onChange={(e) => {
+                              const updated = [...adminData.plans];
+                              updated[idx].name = e.target.value;
+                              setAdminData({ ...adminData, plans: updated });
+                            }}
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Preço (R$)
+                          </label>
+                          <input
+                            type="text"
+                            value={plan.price}
+                            onChange={(e) => {
+                              const updated = [...adminData.plans];
+                              updated[idx].price = e.target.value;
+                              setAdminData({ ...adminData, plans: updated });
+                            }}
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                            Período
+                          </label>
+                          <input
+                            type="text"
+                            value={plan.period}
+                            onChange={(e) => {
+                              const updated = [...adminData.plans];
+                              updated[idx].period = e.target.value;
+                              setAdminData({ ...adminData, plans: updated });
+                            }}
+                            className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                          Descrição Rápida
+                        </label>
+                        <input
+                          type="text"
+                          value={plan.description}
+                          onChange={(e) => {
+                            const updated = [...adminData.plans];
+                            updated[idx].description = e.target.value;
+                            setAdminData({ ...adminData, plans: updated });
+                          }}
+                          className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[9px] text-brand-white/50 uppercase tracking-widest font-black mb-1.5">
+                          Vantagens / Recursos (separados por vírgula)
+                        </label>
+                        <input
+                          type="text"
+                          value={plan.features.join(", ")}
+                          onChange={(e) => {
+                            const updated = [...adminData.plans];
+                            updated[idx].features = e.target.value.split(",").map(f => f.trim()).filter(Boolean);
+                            setAdminData({ ...adminData, plans: updated });
+                          }}
+                          placeholder="Acesso total, Avaliação física,..."
+                          className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: CONTACT */}
+            {activeTab === "contact" && adminData && (
+              <div className="space-y-6">
+                <h3 className="font-title font-black text-xl uppercase border-b border-brand-white/5 pb-2 text-brand-red">
+                  Informações de Contato e Redes Sociais
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                      Endereço da Academia
+                    </label>
+                    <input
+                      type="text"
+                      value={adminData.contact.address}
+                      onChange={(e) => setAdminData({
+                        ...adminData,
+                        contact: { ...adminData.contact, address: e.target.value }
+                      })}
+                      className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                      Telefone Geral
+                    </label>
+                    <input
+                      type="text"
+                      value={adminData.contact.phone}
+                      onChange={(e) => setAdminData({
+                        ...adminData,
+                        contact: { ...adminData.contact, phone: e.target.value }
+                      })}
+                      className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                      Link do Perfil do Instagram
+                    </label>
+                    <input
+                      type="text"
+                      value={adminData.contact.instagram}
+                      onChange={(e) => setAdminData({
+                        ...adminData,
+                        contact: { ...adminData.contact, instagram: e.target.value }
+                      })}
+                      className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                      Link do WhatsApp Direto (Footer)
+                    </label>
+                    <input
+                      type="text"
+                      value={adminData.contact.whatsapp}
+                      onChange={(e) => setAdminData({
+                        ...adminData,
+                        contact: { ...adminData.contact, whatsapp: e.target.value }
+                      })}
+                      className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-bold mb-2">
+                      Google Maps Embed URL (src do Iframe)
+                    </label>
+                    <input
+                      type="text"
+                      value={adminData.contact.mapsEmbedUrl}
+                      onChange={(e) => setAdminData({
+                        ...adminData,
+                        contact: { ...adminData.contact, mapsEmbedUrl: e.target.value }
+                      })}
+                      className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+          </div>
+
+          {/* Bottom Save Action Controls */}
+          <div className="fixed bottom-0 left-0 w-full z-[100] bg-brand-dark-gray/95 backdrop-blur-md border-t border-brand-red/20 p-4 md:p-6 flex justify-center md:justify-between items-center shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+            <span className="hidden md:inline text-xs text-brand-white/40 font-medium">
+              A senha padrão é: <strong className="text-brand-white/70">masterfitness</strong>
+            </span>
+            
+            <button
+              onClick={handleSave}
+              disabled={saveStatus === "saving"}
+              className="w-full md:w-auto flex justify-center items-center gap-2 px-8 py-4 bg-brand-red hover:bg-brand-red-neon text-brand-white font-title font-bold text-sm md:text-xs uppercase tracking-widest transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 neon-glow-red"
+            >
+              {saveStatus === "saving" && <RefreshCw className="w-5 h-5 md:w-4 md:h-4 animate-spin" />}
+              {saveStatus === "success" && <Check className="w-5 h-5 md:w-4 md:h-4 text-green-400" />}
+              {saveStatus === "idle" && <Save className="w-5 h-5 md:w-4 md:h-4" />}
+              <span>
+                {saveStatus === "saving" && "SALVANDO..."}
+                {saveStatus === "success" && "SALVO!"}
+                {saveStatus === "error" && "ERRO"}
+                {saveStatus === "idle" && "SALVAR ALTERAÇÕES"}
+              </span>
+            </button>
+          </div>
+
+        </main>
       </div>
-      <div className="fixed bottom-0 left-0 w-full z-[100] bg-brand-dark-gray/95 backdrop-blur-md border-t border-brand-red/20 p-4 md:p-6 flex justify-center md:justify-end items-center shadow-[0_-10px_30px_rgba(0,0,0,0.5)]"><motion.button onClick={handleSave} disabled={saveStatus === "saving"} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full md:w-auto flex justify-center items-center gap-3 px-10 py-4 bg-gradient-to-r from-brand-red to-brand-red-neon text-brand-white font-title font-bold text-sm uppercase tracking-widest transition-all duration-300 disabled:opacity-50 shadow-[0_4px_20px_rgba(255,30,30,0.3)]">{saveStatus === "saving" && <RefreshCw className="w-5 h-5 animate-spin" />}{saveStatus === "success" && <Check className="w-5 h-5" />}{saveStatus === "idle" && <Save className="w-5 h-5" />}<span>{saveStatus === "saving" ? "SALVANDO..." : saveStatus === "success" ? "SALVO!" : "SALVAR"}</span></motion.button></div>
-      <AnimatePresence>{toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}</AnimatePresence>
-      <AnimatePresence>{confirmDialog && <ConfirmDialog message={confirmDialog.message} onConfirm={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }} onCancel={() => setConfirmDialog(null)} />}</AnimatePresence>
+
     </div>
   );
 }
