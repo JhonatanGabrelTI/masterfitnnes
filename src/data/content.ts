@@ -68,7 +68,7 @@ export interface ContentData {
 }
 
 export const defaultContent: ContentData = {
-  version: 8,
+  version: 11,
   hero: {
     title: "FORJE A SUA MELHOR VERSÃO",
     subtitle: "Mais que uma academia, um estilo de vida. Treine na Master Fitness Ibaiti.",
@@ -87,14 +87,14 @@ export const defaultContent: ContentData = {
     subtitle: "Mais do que uma academia, somos o seu centro de alta performance em Ibaiti.",
     text1: "Fundada com o propósito de transformar vidas através da disciplina e do treinamento físico, a Master Fitness Ibaiti oferece uma infraestrutura de alto padrão para quem busca superar limites.",
     text2: "Com profissionais altamente qualificados, equipamentos de última geração e um ambiente focado em resultados, estamos prontos para apoiar cada passo da sua evolução física e mental.",
-    imageUrl: "/images/gym-about.png",
+    imageUrl: "/images/real/academia-interior-enhanced.jpg",
   },
   modalities: [
     {
       id: "musculacao",
       title: "Musculação",
       description: "Treinos personalizados para ganho de força, hipertrofia e definição muscular com acompanhamento profissional.",
-      image: "/images/mod-musculacao.png",
+      image: "/images/real/atleta-trofeus.jpg",
     },
     {
       id: "funcional",
@@ -122,28 +122,28 @@ export const defaultContent: ContentData = {
     },
   ],
   gallery: [
-    { id: "g1", title: "Área de Pesos Livres", image: "/images/gal-1.png", category: "Infraestrutura" },
-    { id: "g2", title: "Treinamento Funcional", image: "/images/gal-2.png", category: "Treino" },
-    { id: "g3", title: "Equipamentos Importados", image: "/images/gal-3.png", category: "Infraestrutura" },
-    { id: "g4", title: "Área de Cardio Integrada", image: "/images/gal-4.png", category: "Infraestrutura" },
-    { id: "g5", title: "Foco e Determinação", image: "/images/gal-5.png", category: "Treino" },
-    { id: "g6", title: "Comunidade Master Fitness", image: "/images/gal-comunidade.jpg", category: "Comunidade" },
+    { id: "g1", title: "Estrutura Master Fitness", image: "/images/real/academia-interior-enhanced.jpg", category: "Infraestrutura" },
+    { id: "g2", title: "Atleta Master Fitness", image: "/images/real/atleta-trofeus.jpg", category: "Comunidade" },
+    { id: "g3", title: "Conquista no Palco", image: "/images/real/competicao-palco.jpg", category: "Comunidade" },
+    { id: "g4", title: "12 Anos de História", image: "/images/real/master-12-anos.jpg", category: "Comunidade" },
+    { id: "g5", title: "Foco e Determinação", image: "/images/campaigns/comecar.jpeg", category: "Treino" },
+    { id: "g6", title: "Horários Master Fitness", image: "/images/campaigns/horarios.jpeg", category: "Comunidade" },
   ],
   transformations: [
     {
       id: "t1",
       title: "Evolução do Felipe - 12 Meses",
       description: "Foco total na hipertrofia e reeducação alimentar, com ganho expressivo de massa muscular magra.",
-      beforeImage: "/images/gal-2.png",
-      afterImage: "/images/gal-5.png",
+      beforeImage: "/images/campaigns/comecar.jpeg",
+      afterImage: "/images/campaigns/constancia.jpeg",
       studentName: "Felipe Rodrigues",
     },
     {
       id: "t2",
       title: "Evolução da Mariana - 6 Meses",
       description: "Foco no emagrecimento saudável e fortalecimento geral do core e membros inferiores.",
-      beforeImage: "/images/gal-3.png",
-      afterImage: "/images/gal-1.png",
+      beforeImage: "/images/campaigns/comecar-do-zero.jpeg",
+      afterImage: "/images/campaigns/disciplina-saude.jpeg",
       studentName: "Mariana Silva",
     },
   ],
@@ -153,7 +153,7 @@ export const defaultContent: ContentData = {
       name: "Guilherme Santos",
       role: "Aluno há 2 anos",
       text: "A Master Fitness mudou minha rotina. O suporte dos professores e a qualidade dos aparelhos são incomparáveis. Consegui alcançar resultados que nunca imaginei antes.",
-      image: "/images/gal-5.png",
+      image: "/images/campaigns/constancia.jpeg",
       rating: 5,
     },
     {
@@ -161,7 +161,7 @@ export const defaultContent: ContentData = {
       name: "Beatriz Oliveira",
       role: "Aluna há 8 meses",
       text: "Excelente infraestrutura e ambiente acolhedor. O programa de emagrecimento realmente funciona! Perdi 15kg e me sinto com muito mais disposição.",
-      image: "/images/gal-3.png",
+      image: "/images/campaigns/mais-forte.jpeg",
       rating: 5,
     },
     {
@@ -169,7 +169,7 @@ export const defaultContent: ContentData = {
       name: "Lucas Pinheiro",
       role: "Aluno há 3 anos",
       text: "A melhor academia de Ibaiti, disparado! O visual é incrível, a energia é contagiante e os equipamentos são de altíssimo nível. Recomendo muito!",
-      image: "/images/gal-1.png",
+      image: "/images/campaigns/disciplina-saude.jpeg",
       rating: 5,
     },
   ],

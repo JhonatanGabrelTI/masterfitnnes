@@ -1,7 +1,8 @@
-﻿"use client";
+"use client";
 
 import { motion } from "framer-motion";
-import { MessageCircle } from "lucide-react";
+import { ArrowDown, ArrowUpRight, MessageCircle } from "lucide-react";
+import Image from "next/image";
 import { ContentData } from "@/data/content";
 
 interface HeroProps {
@@ -9,169 +10,141 @@ interface HeroProps {
 }
 
 export default function Hero({ data }: HeroProps) {
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.3,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 40, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 100,
-        damping: 15,
-      },
-    },
-  };
-
   const titleWords = data.title.split(" ");
 
-  const wordVariants = {
-    hidden: { y: 50, opacity: 0 },
-    visible: (i: number) => ({
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 120,
-        damping: 12,
-        delay: i * 0.1,
-      },
-    }),
-  };
-
-  const handleScrollToStats = () => {
-    const nextSection = document.getElementById("stats");
-    if (nextSection) {
-      nextSection.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   return (
-    <section className="relative h-screen w-full flex items-center justify-center overflow-hidden z-10">
-      {/* Video Background */}
-      <div className="absolute inset-0 w-full h-full bg-brand-black">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover opacity-45 scale-[1.05]"
-          poster="/images/hero-bg.png"
-        >
-          {/* Using a high-performance, looping fitness video from pexels or unspash source */}
-          <source
-            src="https://player.vimeo.com/external/494951381.sd.mp4?s=d04e3391740924ec9d9ecf0f2cf7c1abfb874403&profile_id=165&oauth2_token_id=57447761"
-            type="video/mp4"
-          />
-        </video>
-        {/* Futuristic Red Radial and linear overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-black via-transparent to-brand-black/80" />
-        <div className="absolute inset-0 bg-radial-gradient from-transparent via-brand-black/20 to-brand-black/90" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-red/10 via-transparent to-transparent pointer-events-none" />
+    <section className="relative min-h-[760px] w-full overflow-hidden bg-brand-black pt-32 lg:h-screen lg:min-h-[820px] lg:pt-0">
+      <div className="absolute inset-0">
+        <Image
+          src="/images/campaigns/treino-monstro.jpeg"
+          alt="Treino na Master Fitness"
+          fill
+          priority
+          sizes="100vw"
+          className="scale-[1.025] object-cover object-center opacity-55"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,#050505_0%,rgba(5,5,5,.92)_28%,rgba(5,5,5,.52)_62%,rgba(5,5,5,.35)_100%)]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-black via-transparent to-black/65" />
+        <div className="absolute inset-0 hero-vignette" />
+        <div className="absolute inset-0 gym-grid opacity-25" />
       </div>
 
-      {/* Hero Content */}
-      <div className="relative max-w-5xl mx-auto px-6 text-center z-10 flex flex-col items-center">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="flex flex-col items-center"
-        >
-          {/* Visual tag */}
-          <motion.span
-            variants={itemVariants}
-            className="px-4 py-1 border border-brand-red/40 bg-brand-red/10 text-brand-white text-xs uppercase tracking-widest font-extrabold mb-6 rounded-none flex items-center gap-2"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-red animate-pulse" />
-            Performance & Disciplina em Ibaiti
-          </motion.span>
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 1.2, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        className="absolute left-0 top-[42%] h-px w-[20vw] origin-left bg-gradient-to-r from-brand-red to-transparent"
+      />
 
-          {/* Cinematic Title */}
-          <h1 className="font-title font-black text-5xl md:text-7xl lg:text-8.5xl tracking-tighter text-brand-white leading-none uppercase mb-6 drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)]">
-            {titleWords.map((word, i) => (
-              <span key={i} className="inline-block overflow-hidden mr-3">
-                <motion.span
-                  custom={i}
-                  variants={wordVariants}
-                  className={`inline-block ${
-                    word === "MELHOR" || word === "VERSÃO" ? "animate-glow-pulse" : "animate-float-white"
-                  }`}
-                  style={{
-                    color: word === "MELHOR" || word === "VERSÃO" ? "#FF1E1E" : "#FFFFFF",
-                    animationDelay: `${i * 0.15}s`,
-                  }}
-                >
-                  {word}
-                </motion.span>
-              </span>
-            ))}
+      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-1px)] max-w-[1440px] items-center px-5 py-20 md:px-10 lg:px-14 lg:pt-28">
+        <div className="w-full max-w-[940px]">
+          <motion.div
+            initial={{ opacity: 0, x: -24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.65, delay: 0.25 }}
+            className="mb-7 flex items-center gap-4"
+          >
+            <span className="h-px w-10 bg-brand-red" />
+            <span className="text-[10px] font-black uppercase tracking-[0.34em] text-white/72 md:text-xs">
+              Performance & Disciplina em Ibaiti
+            </span>
+          </motion.div>
+
+          <h1 className="max-w-[920px] font-title text-[clamp(3.7rem,8.2vw,8.2rem)] font-black uppercase leading-[0.82] tracking-[-0.055em] text-white">
+            {titleWords.map((word, index) => {
+              const highlighted = word === "MELHOR" || word === "VERSÃO";
+              return (
+                <span key={`${word}-${index}`} className="mr-[0.18em] inline-block overflow-hidden pb-[0.08em]">
+                  <motion.span
+                    initial={{ y: "115%", rotate: 3 }}
+                    animate={{ y: 0, rotate: 0 }}
+                    transition={{
+                      duration: 0.8,
+                      delay: 0.35 + index * 0.08,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    className={`inline-block ${highlighted ? "text-brand-red text-neon-glow" : "text-white"}`}
+                  >
+                    {word}
+                  </motion.span>
+                </span>
+              );
+            })}
           </h1>
 
-          {/* Subtitle */}
-          <motion.p
-            variants={itemVariants}
-            className="text-lg md:text-xl text-brand-white/80 max-w-2xl font-light mb-10 tracking-wide"
-          >
-            {data.subtitle}
-          </motion.p>
-
-          {/* CTA Buttons */}
           <motion.div
-            variants={itemVariants}
-            className="flex flex-col sm:flex-row gap-5 justify-center w-full max-w-md sm:max-w-none"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.95 }}
+            className="mt-7 grid max-w-[830px] gap-8 border-l border-brand-red/70 pl-5 md:grid-cols-[1fr_auto] md:items-end md:pl-7"
           >
-            {/* Primary CTA (Pulsing Glow) */}
+            <p className="max-w-xl text-base leading-relaxed text-white/66 md:text-lg">
+              {data.subtitle}
+            </p>
+
+            <div className="hidden text-right md:block">
+              <span className="block text-[9px] font-bold uppercase tracking-[0.28em] text-white/35">Master Fitness</span>
+              <span className="mt-1 block font-title text-lg font-black uppercase tracking-tight text-white">Ibaiti · Paraná</span>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 1.1 }}
+            className="mt-10 flex flex-col gap-3 sm:flex-row"
+          >
             <a
               href={data.enrollLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-8 py-4 bg-brand-red text-brand-white font-title font-bold text-sm uppercase tracking-widest transition-all duration-300 relative overflow-hidden group hover:scale-105 active:scale-95 neon-glow-red flex items-center justify-center animate-shine-button"
+              className="premium-button group min-w-[245px] bg-brand-red text-white"
             >
-              {/* Pulsing overlay */}
-              <div className="absolute inset-0 bg-brand-red-neon/30 blur-lg rounded-full scale-0 group-hover:scale-150 transition-transform duration-700" />
-              <span className="relative z-10">Quero Me Matricular</span>
-              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-brand-white/40 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+              <span>Quero me matricular</span>
+              <ArrowUpRight className="h-5 w-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </a>
-
-            {/* Secondary CTA (WhatsApp) */}
             <a
               href={data.whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-8 py-4 bg-transparent border-2 border-brand-white/20 hover:border-brand-red hover:bg-brand-red/5 text-brand-white font-title font-bold text-sm uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 hover:scale-105 active:scale-95 group"
+              className="premium-button group min-w-[235px] border border-white/20 bg-black/20 text-white backdrop-blur-md hover:border-brand-red/70 hover:bg-brand-red/10"
             >
-              <MessageCircle className="w-5 h-5 text-brand-white group-hover:text-brand-red group-hover:scale-110 transition-all duration-300" />
+              <MessageCircle className="h-5 w-5 text-brand-red transition-transform group-hover:scale-110" />
               <span>Falar no WhatsApp</span>
             </a>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
 
-      {/* Scroll Down Indicator */}
+      <div className="absolute bottom-0 right-0 z-10 hidden items-stretch border-l border-t border-white/10 bg-brand-black/80 backdrop-blur-md md:flex">
+        {["Foco", "Força", "Evolução"].map((word, index) => (
+          <motion.div
+            key={word}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2 + index * 0.1 }}
+            className="flex min-w-[132px] items-center gap-3 border-r border-white/10 px-5 py-4"
+          >
+            <span className="font-title text-xs font-black text-brand-red">0{index + 1}</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/70">{word}</span>
+          </motion.div>
+        ))}
+      </div>
+
       <motion.button
-        onClick={handleScrollToStats}
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: [0.3, 1, 0.3], y: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut", delay: 1.5 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 cursor-pointer"
-        aria-label="Scroll Down"
+        onClick={() => document.getElementById("stats")?.scrollIntoView({ behavior: "smooth" })}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.35 }}
+        className="absolute bottom-6 left-5 z-20 flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.26em] text-white/40 transition-colors hover:text-white md:left-10 lg:left-14"
+        aria-label="Ir para a próxima seção"
       >
-        <span className="text-[10px] text-brand-white/40 uppercase tracking-widest font-extrabold">EXPLORE</span>
-        <div className="w-7 h-11 rounded-full border border-brand-white/20 flex justify-center p-1.5 bg-brand-black/20 backdrop-blur-sm">
-          <div className="w-1 h-2.5 rounded-full bg-brand-red animate-bounce" />
-        </div>
+        <span className="grid h-10 w-10 place-items-center border border-white/15 bg-black/20">
+          <motion.span animate={{ y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.6 }}>
+            <ArrowDown className="h-4 w-4 text-brand-red" />
+          </motion.span>
+        </span>
+        Explore
       </motion.button>
     </section>
   );

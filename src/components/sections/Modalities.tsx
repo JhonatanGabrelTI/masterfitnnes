@@ -1,6 +1,7 @@
-﻿"use client";
+"use client";
 
-import { useRef, useState } from "react";
+import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { ContentData } from "@/data/content";
 
@@ -8,143 +9,62 @@ interface ModalitiesProps {
   data: ContentData["modalities"];
 }
 
-function ModalityCard({ title, description, image, index }: { title: string; description: string; image: string; index: number }) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [rotateX, setRotateX] = useState(0);
-  const [rotateY, setRotateY] = useState(0);
-  const [glowPos, setGlowPos] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
-
-  // Map default images to high-performance Unsplash assets
-  const unsplashImages: Record<string, string> = {
-    "Musculação": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=600",
-    "Aula de Funcional": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=600",
-    "Aula de ABS": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=600",
-    "Aula de Jump": "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600",
-    "Bike Indoor (Spinning)": "https://images.unsplash.com/photo-1538797539774-1213dba5451c?q=80&w=600",
-  };
-
-  const displayImage = image || unsplashImages[title];
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const card = cardRef.current;
-    if (!card) return;
-
-    const rect = card.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-
-    // Mouse coordinates relative to card
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-
-    // Calculate rotation angles (-15deg to 15deg)
-    const rX = ((mouseY - height / 2) / height) * -15;
-    const rY = ((mouseX - width / 2) / width) * 15;
-
-    setRotateX(rX);
-    setRotateY(rY);
-    setGlowPos({ x: mouseX, y: mouseY });
-  };
-
-  const handleMouseLeave = () => {
-    setRotateX(0);
-    setRotateY(0);
-    setIsHovered(false);
-  };
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-  };
-
-  return (
-    <motion.div
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="relative interactive-card h-[380px] w-full bg-brand-dark-gray border border-brand-white/5 overflow-hidden group cursor-pointer flex flex-col justify-end p-6"
-      style={{
-        transformStyle: "preserve-3d",
-        transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(${isHovered ? "-8px" : "0px"})`,
-        transition: isHovered ? "none" : "all 0.5s ease",
-      }}
-    >
-      {/* Dynamic Glow Spotlight */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"
-        style={{
-          background: `radial-gradient(circle 180px at ${glowPos.x}px ${glowPos.y}px, rgba(255, 30, 30, 0.18), transparent 80%)`,
-        }}
-      />
-
-      {/* Grid Pattern inside card */}
-      <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.015)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none z-10" />
-
-      {/* Image Overlay */}
-      <div className="absolute inset-0 bg-brand-black">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={displayImage}
-          alt={title}
-          className="w-full h-full object-cover grayscale opacity-40 group-hover:scale-110 group-hover:grayscale-0 group-hover:opacity-65 transition-all duration-700"
-        />
-        {/* Linear overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-black via-brand-black/35 to-transparent z-10" />
-      </div>
-
-      {/* Card Content */}
-      <div className="relative z-20 flex flex-col gap-2" style={{ transform: "translateZ(30px)" }}>
-        <span className="w-8 h-1 bg-brand-red mb-2 transition-all duration-500 group-hover:w-16" />
-        <h3 className="font-title font-black text-2xl uppercase text-brand-white tracking-tighter group-hover:text-brand-red transition-colors duration-300">
-          {title}
-        </h3>
-        <p className="text-brand-white/60 text-xs md:text-sm leading-relaxed max-w-xs group-hover:text-brand-white/80 transition-colors duration-300">
-          {description}
-        </p>
-      </div>
-
-      {/* Corner borders indicators */}
-      <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-brand-white/10 group-hover:border-brand-red transition-colors duration-300" />
-      <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-brand-white/10 group-hover:border-brand-red transition-colors duration-300" />
-      <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-brand-white/10 group-hover:border-brand-red transition-colors duration-300" />
-      <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-brand-white/10 group-hover:border-brand-red transition-colors duration-300" />
-    </motion.div>
-  );
-}
-
 export default function Modalities({ data }: ModalitiesProps) {
   return (
-    <section id="modalidades" className="relative py-24 bg-brand-black/95 z-10">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-brand-red font-extrabold uppercase tracking-widest text-xs mb-3 block">
-            MODALIDADES
-          </span>
-          <h2 className="font-title font-black text-3xl md:text-5xl text-brand-white tracking-tighter uppercase">
-            ESCOLHA O SEU CAMINHO
-          </h2>
-          <div className="w-12 h-1 bg-brand-red mx-auto mt-4 mb-6" />
-          <p className="text-brand-white/50 text-sm md:text-base">
+    <section id="modalidades" className="section-shell bg-[#090909]">
+      <div className="absolute inset-0 gym-grid opacity-20" />
+      <div className="relative mx-auto max-w-[1440px] px-5 md:px-10 lg:px-14">
+        <div className="mb-14 flex flex-col justify-between gap-7 md:flex-row md:items-end lg:mb-16">
+          <div>
+            <div className="section-kicker"><span>02</span> Modalidades</div>
+            <h2 className="section-title mt-5">Escolha o seu caminho</h2>
+          </div>
+          <p className="max-w-md text-sm leading-6 text-white/48 md:text-right">
             Oferecemos uma variedade de modalidades de treinamento focadas em performance e superação de limites.
           </p>
         </div>
 
-        {/* Modalities Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {data.map((modality, idx) => (
-            <ModalityCard
+        <div className="grid auto-rows-[340px] grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
+          {data.map((modality, index) => (
+            <motion.article
               key={modality.id}
-              title={modality.title}
-              description={modality.description}
-              image={modality.image}
-              index={idx}
-            />
+              initial={{ opacity: 0, y: 35 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.65, delay: index * 0.07, ease: [0.22, 1, 0.36, 1] }}
+              className={`interactive-card group relative overflow-hidden border border-white/10 bg-brand-dark-gray ${
+                index === 0 ? "lg:col-span-7 lg:row-span-2" : index === 1 || index === 2 ? "lg:col-span-5" : index === 3 ? "lg:col-span-5" : "lg:col-span-7"
+              }`}
+            >
+              <Image src={modality.image} alt="" fill sizes="(max-width: 768px) 100vw, 50vw" className="scale-110 object-cover opacity-40 blur-xl" aria-hidden="true" />
+              <Image
+                src={modality.image}
+                alt={modality.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-contain transition-all duration-1000 group-hover:scale-[1.035]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/5" />
+              <div className="absolute inset-0 bg-brand-red/0 transition-colors duration-500 group-hover:bg-brand-red/[0.035]" />
+              <span className="absolute right-5 top-5 font-title text-xs font-black tracking-[0.18em] text-white/45">0{index + 1}</span>
+              <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
+                <span className="mb-4 block h-[3px] w-10 bg-brand-red transition-all duration-500 group-hover:w-20" />
+                <div className="flex items-end justify-between gap-5">
+                  <div>
+                    <h3 className={`font-title font-black uppercase tracking-[-0.025em] text-white ${index === 0 ? "text-4xl md:text-6xl" : "text-2xl md:text-3xl"}`}>
+                      {modality.title}
+                    </h3>
+                    <p className={`mt-3 max-w-xl text-xs leading-5 text-white/62 md:text-sm ${index === 0 ? "md:block" : "lg:line-clamp-2"}`}>
+                      {modality.description}
+                    </p>
+                  </div>
+                  <span className="hidden h-11 w-11 shrink-0 place-items-center border border-white/15 bg-black/30 text-white transition-all group-hover:border-brand-red group-hover:bg-brand-red md:grid">
+                    <ArrowUpRight className="h-5 w-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                  </span>
+                </div>
+              </div>
+              <div className="absolute inset-x-0 bottom-0 h-[2px] origin-left scale-x-0 bg-brand-red transition-transform duration-500 group-hover:scale-x-100" />
+            </motion.article>
           ))}
         </div>
       </div>

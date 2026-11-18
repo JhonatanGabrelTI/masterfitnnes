@@ -1,140 +1,97 @@
-﻿"use client";
+"use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Dumbbell, Target, ShieldCheck } from "lucide-react";
+import { Dumbbell, ShieldCheck, Target } from "lucide-react";
 import { ContentData } from "@/data/content";
 
 interface AboutProps {
   data: ContentData["about"];
 }
 
+const pillars = [
+  { icon: Dumbbell, title: "Estrutura", text: "Equipamentos modernos e área livre de treino." },
+  { icon: Target, title: "Foco", text: "Acompanhamento e programas de resultado." },
+  { icon: ShieldCheck, title: "Qualidade", text: "Profissionais experientes certificados." },
+];
+
 export default function About({ data }: AboutProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  
-  // Track scroll position of the section to create Parallax
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"],
   });
-
-  // Parallax translation for the image
-  const imgY = useTransform(scrollYProgress, [0, 1], [-60, 60]);
-
-  // Motion variants for text content
-  const textVariants = {
-    hidden: { opacity: 0, x: -50 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        type: "spring" as const,
-        stiffness: 80,
-        damping: 15,
-      },
-    },
-  };
+  const imageY = useTransform(scrollYProgress, [0, 1], [-35, 35]);
 
   return (
-    <section 
-      ref={containerRef}
-      id="sobre" 
-      className="relative py-24 bg-brand-black overflow-hidden z-10"
-    >
-      {/* Decorative Energy Lines in background */}
-      <div className="absolute inset-0 pointer-events-none opacity-10">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="line-glow" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FF1E1E" stopOpacity="0" />
-              <stop offset="50%" stopColor="#FF1E1E" stopOpacity="1" />
-              <stop offset="100%" stopColor="#FF1E1E" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          <path d="M-100,200 L1200,600 M200,-50 L800,800 M900,100 L300,900" stroke="url(#line-glow)" strokeWidth="1.5" fill="none" />
-        </svg>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-          
-          {/* Left Column: Parallax Image */}
-          <div className="lg:col-span-6 relative h-[400px] md:h-[600px] overflow-hidden border border-brand-white/10 group">
-            {/* Red accent frame corner */}
-            <div className="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-brand-red z-20" />
-            <div className="absolute -bottom-1 -right-1 w-8 h-8 border-b-4 border-r-4 border-brand-red z-20" />
-            
-            {/* Parallax Image container */}
-            <motion.div 
-              style={{ y: imgY }} 
-              className="absolute -top-20 -bottom-20 left-0 right-0 w-full"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
-                src="https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=1200" 
-                alt="Treino na Master Fitness" 
-                className="w-full h-full object-cover grayscale brightness-90 contrast-110 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+    <section ref={containerRef} id="sobre" className="section-shell light-section">
+      <div className="absolute right-0 top-0 h-48 w-48 border-l border-b border-white/5 gym-grid opacity-60" />
+      <div className="relative mx-auto grid max-w-[1440px] gap-14 px-5 md:px-10 lg:grid-cols-12 lg:items-center lg:gap-20 lg:px-14">
+        <motion.div
+          initial={{ opacity: 0, x: -45 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="relative lg:col-span-6"
+        >
+          <div className="relative ml-4 h-[460px] overflow-hidden border border-white/10 md:h-[650px] md:ml-8">
+            <motion.div style={{ y: imageY }} className="absolute -inset-y-12 inset-x-0">
+              <Image
+                src={data.imageUrl}
+                alt="Estrutura da Master Fitness"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover brightness-[1.12] contrast-[1.04] transition-transform duration-1000 hover:scale-[1.035]"
               />
             </motion.div>
-            
-            {/* Dark overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-brand-black/40 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-black/48 via-transparent to-black/5" />
+            <div className="absolute inset-0 ring-1 ring-inset ring-white/10" />
+            <div className="absolute bottom-0 left-0 border-r border-t border-white/10 bg-brand-black/85 px-6 py-5 backdrop-blur-md md:px-8">
+              <span className="block text-[9px] font-black uppercase tracking-[0.28em] text-brand-red">Desde o primeiro treino</span>
+              <span className="mt-1 block font-title text-2xl font-black uppercase text-white">Estrutura para evoluir</span>
+            </div>
+          </div>
+          <div className="absolute -left-1 top-10 hidden h-48 w-[3px] bg-brand-red shadow-[0_0_20px_rgba(255,30,30,.65)] md:block" />
+          <div className="absolute -bottom-6 right-[-6px] z-10 hidden h-44 w-44 border border-brand-red/35 md:block">
+            <div className="absolute inset-3 border border-white/10 gym-grid" />
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.8, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+          className="light-copy lg:col-span-6"
+        >
+          <div className="section-kicker"><span>01</span> Conheça a Master Fitness</div>
+          <h2 className="section-title mt-5 max-w-[680px]">{data.title}</h2>
+          <p className="mt-7 border-l-2 border-brand-red pl-5 text-base font-semibold leading-relaxed text-black/80 md:text-lg">
+            {data.subtitle}
+          </p>
+          <div className="mt-7 max-w-2xl space-y-4 text-sm leading-7 text-black/58 md:text-base">
+            <p>{data.text1}</p>
+            <p>{data.text2}</p>
           </div>
 
-          {/* Right Column: Content */}
-          <div className="lg:col-span-6 flex flex-col justify-center">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={textVariants}
-            >
-              <span className="text-brand-red font-extrabold uppercase tracking-widest text-xs mb-3 block">
-                CONHEÇA A MASTER FITNESS
-              </span>
-              
-              <h2 className="font-title font-black text-3xl md:text-5xl text-brand-white tracking-tighter uppercase mb-6 leading-tight">
-                {data.title}
-              </h2>
-              
-              <p className="text-brand-white/90 text-md font-semibold leading-relaxed mb-6 border-l-2 border-brand-red pl-4">
-                {data.subtitle}
-              </p>
-              
-              <div className="space-y-4 text-brand-white/70 text-sm md:text-base mb-10 leading-relaxed">
-                <p>{data.text1}</p>
-                <p>{data.text2}</p>
-              </div>
-
-              {/* Core Pillars */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-brand-white/10">
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-3">
-                    <Dumbbell className="w-5 h-5 text-brand-red" />
-                    <h4 className="font-bold text-xs uppercase text-brand-white tracking-wider">Estrutura</h4>
-                  </div>
-                  <p className="text-xs text-brand-white/50">Equipamentos modernos e área livre de treino.</p>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-3">
-                    <Target className="w-5 h-5 text-brand-red" />
-                    <h4 className="font-bold text-xs uppercase text-brand-white tracking-wider">Foco</h4>
-                  </div>
-                  <p className="text-xs text-brand-white/50">Acompanhamento e programas de resultado.</p>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-3">
-                    <ShieldCheck className="w-5 h-5 text-brand-red" />
-                    <h4 className="font-bold text-xs uppercase text-brand-white tracking-wider">Qualidade</h4>
-                  </div>
-                  <p className="text-xs text-brand-white/50">Profissionais experientes certificados.</p>
-                </div>
-              </div>
-
-            </motion.div>
+          <div className="mt-10 grid border-l border-t border-black/10 sm:grid-cols-3">
+            {pillars.map(({ icon: Icon, title, text }, index) => (
+              <motion.div
+                key={title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 + index * 0.1 }}
+                className="group border-r border-b border-black/10 bg-white/55 p-5 transition-all hover:-translate-y-1 hover:bg-white hover:shadow-[0_18px_45px_rgba(0,0,0,.08)]"
+              >
+                <Icon className="h-5 w-5 text-brand-red transition-transform group-hover:-translate-y-1" />
+                <h3 className="mt-5 text-xs font-black uppercase tracking-[0.14em] text-black">{title}</h3>
+                <p className="mt-2 text-xs leading-5 text-black/50">{text}</p>
+              </motion.div>
+            ))}
           </div>
-          
-        </div>
+        </motion.div>
       </div>
     </section>
   );

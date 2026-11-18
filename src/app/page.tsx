@@ -6,6 +6,8 @@ import Marquee from "@/components/ui/Marquee";
 import SmoothScroll from "@/components/effects/SmoothScroll";
 import CustomCursor from "@/components/effects/CustomCursor";
 import EnergyBackground from "@/components/effects/EnergyBackground";
+import ScrollExperience from "@/components/effects/ScrollExperience";
+import FestiveDecor from "@/components/effects/FestiveDecor";
 import Hero from "@/components/sections/Hero";
 import Stats from "@/components/sections/Stats";
 import About from "@/components/sections/About";
@@ -13,9 +15,9 @@ import Modalities from "@/components/sections/Modalities";
 import Gallery from "@/components/sections/Gallery";
 import Transformations from "@/components/sections/Transformations";
 import Testimonials from "@/components/sections/Testimonials";
+import VIPGroup from "@/components/sections/VIPGroup";
 import Plans from "@/components/sections/Plans";
 import Footer from "@/components/sections/Footer";
-import { Dumbbell } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
@@ -38,6 +40,8 @@ export default function Home() {
       {/* Dynamic Theme Components */}
       <CustomCursor />
       <EnergyBackground />
+      {isLoaded && <FestiveDecor />}
+      {isLoaded && <ScrollExperience whatsappUrl={content.hero.whatsappLink} />}
 
       <AnimatePresence mode="wait">
         {!isLoaded ? (
@@ -53,9 +57,9 @@ export default function Home() {
               <Image
                 src="/logo.png"
                 alt="Master Fitness Ibaiti"
-                width={200}
-                height={80}
-                className="h-20 w-auto object-contain animate-pulse"
+                width={150}
+                height={150}
+                className="h-20 w-20 object-contain animate-pulse"
                 priority
               />
               <div className="absolute inset-0 bg-brand-red/10 blur-xl rounded-full scale-150 animate-ping opacity-30" />
@@ -91,6 +95,7 @@ export default function Home() {
                 <Gallery data={content.gallery} />
                 <Transformations data={content.transformations} />
                 <Testimonials data={content.testimonials} />
+                <VIPGroup />
                 <Plans data={content.plans} whatsappEnrollUrl={content.hero.enrollLink} />
               </main>
 

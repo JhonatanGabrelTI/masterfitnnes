@@ -47,19 +47,17 @@ export default function Gallery({ data }: GalleryProps) {
   };
 
   return (
-    <section id="galeria" className="relative py-24 bg-brand-dark-gray z-10">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="galeria" className="section-shell light-section">
+      <div className="absolute inset-0 gym-grid opacity-20" />
+      <div className="relative mx-auto max-w-[1440px] px-5 md:px-10 lg:px-14">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
+        <div className="light-copy flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
           <div>
-            <span className="text-brand-red font-extrabold uppercase tracking-widest text-xs mb-3 block">
-              NOSSO ESPAÇO
-            </span>
-            <h2 className="font-title font-black text-3xl md:text-5xl text-brand-white tracking-tighter uppercase leading-none">
+            <div className="section-kicker"><span>03</span> Nosso espaço</div>
+            <h2 className="section-title mt-5">
               GALERIA PREMIUM
             </h2>
-            <div className="w-12 h-1 bg-brand-red mt-4" />
           </div>
 
           {/* Filters */}
@@ -71,10 +69,10 @@ export default function Gallery({ data }: GalleryProps) {
                   setFilter(cat);
                   setActiveImageIdx(null);
                 }}
-                className={`px-4 py-2 text-xs uppercase tracking-widest font-extrabold transition-all duration-300 ${
+                className={`border px-4 py-2.5 text-[10px] font-extrabold uppercase tracking-[0.18em] transition-all duration-300 ${
                   filter === cat
-                    ? "bg-brand-red text-brand-white neon-glow-red"
-                    : "bg-brand-white/5 text-brand-white/60 hover:text-brand-white hover:bg-brand-white/10"
+                    ? "border-brand-red bg-brand-red text-white shadow-[0_8px_25px_rgba(255,30,30,.2)]"
+                    : "border-black/10 bg-white/60 text-black/55 hover:border-black/25 hover:bg-white hover:text-black"
                 }`}
               >
                 {cat}
@@ -84,7 +82,7 @@ export default function Gallery({ data }: GalleryProps) {
         </div>
 
         {/* Pinterest Grid */}
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+        <div className="columns-1 gap-4 space-y-4 sm:columns-2 lg:columns-3">
           {filteredItems.map((item, index) => {
             // Pick image URL
             const urlIdx = data.findIndex((d) => d.id === item.id);
@@ -98,25 +96,25 @@ export default function Gallery({ data }: GalleryProps) {
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index * 0.05 }}
                 onClick={() => setActiveImageIdx(index)}
-                className="break-inside-avoid relative overflow-hidden group border border-brand-white/5 cursor-pointer"
+                className="group relative break-inside-avoid cursor-pointer overflow-hidden border border-white/10 bg-black"
               >
                 {/* Image */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={imgUrl}
                   alt={item.title}
-                  className="w-full object-cover grayscale brightness-90 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700"
+                  className="w-full object-cover brightness-90 transition-all duration-1000 group-hover:scale-[1.055] group-hover:brightness-110"
                 />
                 
                 {/* Zoom overlay on Hover */}
-                <div className="absolute inset-0 bg-brand-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/95 via-black/15 to-transparent p-6 opacity-80 transition-opacity duration-300 group-hover:opacity-100">
                   <div className="absolute top-4 right-4 p-2 bg-brand-red text-brand-white rounded-none">
                     <ZoomIn className="w-4 h-4" />
                   </div>
                   <span className="text-[10px] text-brand-red font-black uppercase tracking-widest mb-1">
                     {item.category}
                   </span>
-                  <h4 className="font-title font-bold text-lg text-brand-white uppercase leading-none">
+                  <h4 className="font-title text-xl font-black uppercase leading-none text-white">
                     {item.title}
                   </h4>
                 </div>

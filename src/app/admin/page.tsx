@@ -183,29 +183,29 @@ export default function AdminPage() {
   // Authorization Form Screen
   if (!isAuthorized) {
     return (
-      <div className="min-h-screen bg-brand-black flex items-center justify-center px-6 relative">
+      <div className="admin-shell min-h-screen flex items-center justify-center px-6 relative">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,30,30,0.05),transparent_60%)]" />
         
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="w-full max-w-md p-8 bg-brand-dark-gray border border-brand-white/10 z-10 relative"
+          className="admin-login-card w-full max-w-md p-8 border z-10 relative"
         >
           <div className="flex flex-col items-center text-center mb-8">
             <div className="p-4 bg-brand-red/10 border border-brand-red/30 rounded-none mb-4">
               <Lock className="w-8 h-8 text-brand-red" />
             </div>
-            <h1 className="font-title font-black text-2xl text-brand-white uppercase tracking-tighter">
+            <h1 className="font-title font-black text-2xl text-black uppercase tracking-tighter">
               PAINEL ADMINISTRATIVO
             </h1>
-            <p className="text-xs text-brand-white/40 mt-1 uppercase tracking-widest font-extrabold">
+            <p className="text-xs text-black/45 mt-1 uppercase tracking-widest font-extrabold">
               Master Fitness Ibaiti
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label className="block text-[10px] text-brand-white/50 uppercase tracking-widest font-black mb-2">
+              <label className="block text-[10px] text-black/55 uppercase tracking-widest font-black mb-2">
                 Senha de Acesso
               </label>
               <input
@@ -213,13 +213,13 @@ export default function AdminPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-brand-black border border-brand-white/10 focus:border-brand-red px-4 py-3 text-sm text-brand-white placeholder-brand-white/10 focus:outline-none transition-colors duration-300"
+                className="w-full rounded-xl bg-white border border-black/10 focus:border-brand-red px-4 py-3 text-sm text-black placeholder:text-black/25 focus:outline-none transition-all duration-300 focus:shadow-[0_0_0_3px_rgba(255,30,30,.1)]"
                 placeholder="Insira a senha admin"
               />
               {authError && (
                 <div className="flex items-center gap-2 mt-2 text-xs text-brand-red">
                   <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>Senha incorreta! Dica: &apos;masterfitness&apos;</span>
+                  <span>Senha incorreta. Verifique os dados e tente novamente.</span>
                 </div>
               )}
             </div>
@@ -233,7 +233,7 @@ export default function AdminPage() {
           </form>
           
           <div className="text-center mt-6">
-            <Link href="/" className="text-xs text-brand-white/40 hover:text-brand-white transition-colors uppercase tracking-widest font-black">
+            <Link href="/" className="text-xs text-black/45 hover:text-brand-red transition-colors uppercase tracking-widest font-black">
               Voltar ao Site
             </Link>
           </div>
@@ -357,10 +357,10 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-black text-brand-white flex flex-col z-10 relative">
+    <div className="admin-shell min-h-screen flex flex-col z-10 relative">
       
       {/* Header bar */}
-      <header className="bg-brand-dark-gray border-b border-brand-white/5 py-4 px-6 md:px-12 flex justify-between items-center sticky top-0 z-[50]">
+      <header className="admin-header border-b border-white/10 py-4 px-6 md:px-12 flex justify-between items-center sticky top-0 z-[50]">
         <div className="flex items-center gap-3">
           <span className="font-title font-black text-xl tracking-tighter text-brand-white">
             MASTER<span className="text-brand-red">FITNESS</span>
@@ -393,7 +393,7 @@ export default function AdminPage() {
       <div className="flex-1 flex flex-col lg:grid lg:grid-cols-12 gap-0 max-w-7xl w-full mx-auto p-4 md:p-8 pb-32">
         
         {/* Sidebar Nav Tabs */}
-        <aside className="lg:col-span-3 bg-brand-dark-gray border border-brand-white/5 p-4 flex flex-row lg:flex-col gap-2 h-fit overflow-x-auto whitespace-nowrap lg:whitespace-normal scrollbar-hide">
+        <aside className="admin-sidebar lg:col-span-3 border border-white/5 p-4 flex flex-row lg:flex-col gap-2 h-fit overflow-x-auto whitespace-nowrap lg:whitespace-normal scrollbar-hide lg:sticky lg:top-24">
           {[
             { id: "hero", label: "Hero (Início)", icon: <LayoutGrid className="w-4 h-4" /> },
             { id: "stats", label: "Números", icon: <Award className="w-4 h-4" /> },
@@ -431,7 +431,15 @@ export default function AdminPage() {
         </aside>
 
         {/* Content edit block */}
-        <main className="lg:col-span-9 bg-brand-dark-gray border border-l-0 lg:border-l border-brand-white/5 p-6 md:p-8 flex flex-col justify-between">
+        <main className="admin-workspace lg:col-span-9 border border-l-0 lg:border-l p-6 md:p-8 flex flex-col justify-between">
+          <div className="mb-8 flex flex-col gap-3 border-b border-black/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <span className="text-[9px] font-black uppercase tracking-[0.24em] text-brand-red">Central de conteúdo</span>
+              <h1 className="mt-2 font-title text-3xl font-black uppercase tracking-tight text-black">Gerencie seu site</h1>
+              <p className="mt-1 text-xs text-black/45">Atualize textos, imagens, planos e contatos sem alterar a estrutura.</p>
+            </div>
+            <span className="w-fit rounded-full border border-emerald-600/15 bg-emerald-500/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.18em] text-emerald-700">Site operacional</span>
+          </div>
           <div className="space-y-8">
             
             {/* TAB: HERO */}
@@ -742,6 +750,8 @@ export default function AdminPage() {
                           className="w-full bg-brand-dark-gray border border-brand-white/10 focus:border-brand-red px-3 py-2.5 text-xs text-brand-white focus:outline-none"
                         />
                       </div>
+                    </div>
+                  )}
                     </div>
                   ))}
                 </div>
@@ -1205,6 +1215,8 @@ export default function AdminPage() {
                         />
                       </div>
                     </div>
+                  )}
+                    </div>
                   ))}
                 </div>
               </div>
@@ -1299,9 +1311,9 @@ export default function AdminPage() {
           </div>
 
           {/* Bottom Save Action Controls */}
-          <div className="fixed bottom-0 left-0 w-full z-[100] bg-brand-dark-gray/95 backdrop-blur-md border-t border-brand-red/20 p-4 md:p-6 flex justify-center md:justify-between items-center shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+          <div className="admin-savebar fixed bottom-0 left-0 w-full z-[100] backdrop-blur-md border-t border-brand-red/20 p-4 md:p-6 flex justify-center md:justify-between items-center shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
             <span className="hidden md:inline text-xs text-brand-white/40 font-medium">
-              A senha padrão é: <strong className="text-brand-white/70">masterfitness</strong>
+              As alterações ficam disponíveis na prévia assim que forem salvas.
             </span>
             
             <button
